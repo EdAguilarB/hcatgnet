@@ -1,0 +1,1 @@
+{'batch_size': 40, 'epochs': 250, 'lr0': 0.01, 'betas': (0.9, 0.999), 'eps': 1e-09, 'weight_decay': 0, 'amsgrad': False, 'factor': 0.7, 'patience': 7, 'min_lr': 1e-08, 'dim': 64, 'improved': True, 'n_conv': 2, 'splits': 10, 'loss_fn': MSELoss()}

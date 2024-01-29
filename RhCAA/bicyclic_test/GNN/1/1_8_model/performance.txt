@@ -1,0 +1,39 @@
+09-Dec-2023, 07:57:46
+---------------------------------------------------------
+GNN TRAINING AND PERFORMANCE
+Best epoch: None
+Dataset Size = 651
+***************
+Training set
+Training set size = 549
+R2 Train = 0.943 
+MAE Train = 4.743 
+RMSE Train = 10.769 
+Mean Bias Error Train = 0.070 
+Mean absolute percentage error Train = 0.953 
+Error Standard Deviation Train = 10.768 
+***************
+Validation set
+Validation set size = 68
+R2 Validation = 0.929 
+MAE Validation = 4.310 
+RMSE Validation = 12.217 
+Mean Bias Error Validation = 1.101 
+Mean absolute percentage error Validation = 0.834 
+Error Standard Deviation Validation = 12.167 
+***************
+Test set
+Test set size = 34
+Accuracy Test = 1.000 
+Precision Test = 1.000 
+Recall Test = 1.000 
+F1 Test = 1.000 
+Test Set Total Correct Side  Predictions = 34
+R2 Test = 0.998 
+MAE Test = 1.767 
+RMSE Test = 2.326 
+Mean Bias Error Test = 0.466 
+Mean absolute percentage error Test = 1.399 
+Error Standard Deviation Test = 2.279 
+---------------------------------------------------------
+OUTLIERS (TEST SET)

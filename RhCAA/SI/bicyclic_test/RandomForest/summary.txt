@@ -1,0 +1,7 @@
+Summary of results reported as mean ± std:
+R2 score: 0.709 ± 0.198
+Mean absolute error: 22.793 ± 9.022
+Root mean squared error: 24.750 ± 8.837
+Mean absolute percentage error: 11.539 ± 6.681
+Mean bias error: 0.092 ± 7.614
+Error std: 23.494 ± 8.983

@@ -1,0 +1,81 @@
+*********************
+Metrics using fold 1 as validation set
+R2 score: 0.880
+Mean absolute error: 13.605
+Root mean squared error: 16.871
+Mean absolute percentage error: 9.491
+Mean bias error: -8.854
+Error std: 14.361
+*********************
+Metrics using fold 2 as validation set
+R2 score: 0.868
+Mean absolute error: 14.034
+Root mean squared error: 17.727
+Mean absolute percentage error: 10.784
+Mean bias error: -13.288
+Error std: 11.734
+*********************
+Metrics using fold 3 as validation set
+R2 score: 0.897
+Mean absolute error: 13.195
+Root mean squared error: 15.613
+Mean absolute percentage error: 7.103
+Mean bias error: -3.272
+Error std: 15.266
+*********************
+Metrics using fold 4 as validation set
+R2 score: 0.903
+Mean absolute error: 12.419
+Root mean squared error: 15.150
+Mean absolute percentage error: 7.728
+Mean bias error: -7.554
+Error std: 13.132
+*********************
+Metrics using fold 5 as validation set
+R2 score: 0.741
+Mean absolute error: 19.819
+Root mean squared error: 24.796
+Mean absolute percentage error: 15.638
+Mean bias error: -19.706
+Error std: 15.051
+*********************
+Metrics using fold 6 as validation set
+R2 score: 0.871
+Mean absolute error: 14.628
+Root mean squared error: 17.486
+Mean absolute percentage error: 4.007
+Mean bias error: 8.899
+Error std: 15.052
+*********************
+Metrics using fold 7 as validation set
+R2 score: 0.596
+Mean absolute error: 27.084
+Root mean squared error: 31.003
+Mean absolute percentage error: 19.235
+Mean bias error: -27.084
+Error std: 15.088
+*********************
+Metrics using fold 8 as validation set
+R2 score: 0.913
+Mean absolute error: 12.190
+Root mean squared error: 14.367
+Mean absolute percentage error: 5.748
+Mean bias error: -0.380
+Error std: 14.362
+*********************
+Metrics using fold 9 as validation set
+R2 score: 0.718
+Mean absolute error: 21.001
+Root mean squared error: 25.881
+Mean absolute percentage error: 16.248
+Mean bias error: -21.001
+Error std: 15.125
+*********************
+Test set
+Summary of results reported as mean ± std:
+R2 = 0.821 ± 0.104
+MAE = 16.442 ± 4.800
+RMSE = 19.877 ± 5.521
+Mean absolute percentage error: 10.665 ± 4.950
+Mean bias error: -10.249 ± 10.644
+Error std: 14.352 ± 1.120

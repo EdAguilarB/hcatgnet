@@ -1,0 +1,40 @@
+09-Dec-2023, 07:50:12
+---------------------------------------------------------
+Traditional ML algorithm Performance
+Dataset Size = 686
+Training time = 0.005843917528788249 min
+***************
+Training set
+Training set size = 550
+R2 Train = 0.918 
+MAE Train = 7.017 
+RMSE Train = 12.932 
+Mean Bias Error Train = -0.043 
+Mean absolute percentage error Train = 1.580 
+Error Standard Deviation Train = 12.932 
+***************
+Validation set
+Validation set size = 68
+R2 Validation = 0.851 
+MAE Validation = 9.851 
+RMSE Validation = 17.424 
+Mean Bias Error Validation = -1.737 
+Mean absolute percentage error Validation = 1.584 
+Error Standard Deviation Validation = 17.338 
+***************
+Test set
+Test Set Total Size = 68
+Accuracy Test = 0.985 
+Precision Test = 1.000 
+Recall Test = 0.971 
+F1 Test = 0.985 
+Test Set Total Correct Side  Predictions = 67
+R2 Test = 0.943 
+MAE Test = 7.592 
+RMSE Test = 10.930 
+Mean Bias Error Test = -0.300 
+Mean absolute percentage error Test = 1.472 
+Error Standard Deviation Test = 10.926 
+---------------------------------------------------------
+OUTLIERS (TEST SET)
+01) 55    Error: 38.19 %    (index=4)

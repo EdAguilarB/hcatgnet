@@ -1,0 +1,15 @@
+/0
+batch_size/40
+epochs/1500
+loss_function/MSELoss()
+lr0/0.01
+patience/0
+factor/0.5
+minlr/1e-08
+betas/(0.9, 0.999)
+eps/1e-09
+weight_decay/0
+amsgrad/False
+dim/128
+bias/True
+n_conv/3
