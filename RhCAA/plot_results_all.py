@@ -15,19 +15,18 @@ import pandas as pd
 from seaborn import violinplot, stripplot
 
 
-from icecream import ic
 
 
 PARSER = argparse.ArgumentParser(description="Plot performance of both models (atomistic potential and GNN)\
                                   as mean and standard deviation for each testing-fold.")
 
-PARSER.add_argument("-g", "--gnn", dest="g", type=str, default="RhCASA/GNN",
+PARSER.add_argument("-g", "--gnn", dest="g", type=str, default="RhCAA/GNN",
                     help="Name of the directory where the GNN experiments are saved.")
 
-PARSER.add_argument("-t", "--tm", dest="t", type=str, default="RhCASA/Traditional_ML/GradientBoosting",
+PARSER.add_argument("-t", "--tm", dest="t", type=str, default="RhCAA/Traditional_ML/GradientBoosting",
                     help="Name of the directory where the traditional ML experiments are saved.")
 
-PARSER.add_argument("-l", "--log", type=str, dest="l", default='RhCASA/Results',
+PARSER.add_argument("-l", "--log", type=str, dest="l", default='RhCAA/Results',
                     help="Directory where the plots will be saved.")
 
 

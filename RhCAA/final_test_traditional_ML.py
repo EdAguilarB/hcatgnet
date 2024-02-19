@@ -19,11 +19,11 @@ from Utils.ploting_functions import *
 
 PARSER = argparse.ArgumentParser(description="Prediction of %top variable for a given new test set.")
 
-PARSER.add_argument("-d", "--dir", dest="d", type=str, default="bicyclic_test/traditional_ML",
+PARSER.add_argument("-d", "--dir", dest="d", type=str, default="final_test/traditional_ML",
                     help="Name of the directory where plots will be saved.")
-PARSER.add_argument("-m", "--mod", dest="m", type=str, default="RhCASA/Traditional_ML/GradientBoosting",
+PARSER.add_argument("-m", "--mod", dest="m", type=str, default="RhCAA/Traditional_ML/GradientBoosting",
                     help="Name of the directory where the models are stored.")
-PARSER.add_argument("-t", "--test_set", type=str, dest="t", default="Data/Bicyclic/raw",
+PARSER.add_argument("-t", "--test_set", type=str, dest="t", default="Data/final_test/raw",
                     help="Directory where test set graphs are stored.")
 
 ARGS = PARSER.parse_args()
@@ -33,7 +33,7 @@ ARGS = PARSER.parse_args()
 def main():
 
     pwd = os.getcwd()
-    test_data = os.path.join(pwd, ARGS.t, 'bicyclic.csv')
+    test_data = os.path.join(pwd, ARGS.t, 'final_test.csv')
 
     experiments_dir = os.path.join(pwd, ARGS.d)
     os.makedirs(experiments_dir, exist_ok=True)
