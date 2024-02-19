@@ -15,6 +15,6 @@ The files contain the following:
 5. traditional_ML.py: contains the code to run the training of the TML algorithms using the learning dataset.
 6. training_es.py: contains the code to train the GNN models using the learning dataset.
 
-Th .sh scripts contain the exact commands to run in order to replicate the results reported.
+The .sh scripts contain the exact commands to run in order to replicate the results reported.
 To run all the experiments with the default parameters, run the script run_all_experiments.sh
 
