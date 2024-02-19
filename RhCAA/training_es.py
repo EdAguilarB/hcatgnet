@@ -24,7 +24,7 @@ from Utils.utils import create_loaders, train, test, model_report, outer_summary
 
 
 PARSER = argparse.ArgumentParser(description="Perform nested cross validation for GNN for prediction of stereoselectivity of rhodium catalysed 1,4 Michael additions.")
-PARSER.add_argument("-d", "--dir", dest="d", type=str, default="RhCASA/GNN",
+PARSER.add_argument("-d", "--dir", dest="d", type=str, default="RhCAA/GNN",
                     help="Name of the directory where experiments will be saved.")
 PARSER.add_argument("-e", "--exp", dest="e", type=str, default="r",
                     help="Experiment to perform. Accepted values are 'r' for regression and 'c' for classification")
@@ -88,7 +88,7 @@ def main():
 
     print('Model hyperparameters: \n', HYPERPARAMS, '\n')
 
-    print('Performing experiment using the monocyclic dataset as training, validation, and test set with inner and outer cross validation.')
+    print('Performing experiment using the learning dataset as training, validation, and test set with inner and outer cross validation.')
     val_size = HYPERPARAMS["splits"]-1
     TOT_RUNS = HYPERPARAMS["splits"]*val_size
 
@@ -113,11 +113,11 @@ def main():
 
     if ARGS.e == 'r':
         print('Predicting quantitative selectivity of process.')
-        monocyclic = ChiralLigands_regr(root = '{}/Data/Monocyclic/'.format(current_dir), filename= 'monocyclic_folds.csv', include_fold=True)
+        monocyclic = ChiralLigands_regr(root = '{}/Data/learning/'.format(current_dir), filename= 'learning_folds.csv', include_fold=True)
 
     elif ARGS.e == 'c':
         print('Predicting side of addition of process.')
-        monocyclic = ChiralLigands_class(root = '{}/Data/Monocyclic/'.format(current_dir), filename= 'monocyclic_folds.csv', include_fold=True)
+        monocyclic = ChiralLigands_class(root = '{}/Data/learning/'.format(current_dir), filename= 'learning_folds.csv', include_fold=True)
 
     print("Dataset type: ", type(monocyclic))
     print("Dataset length: ", monocyclic.len())

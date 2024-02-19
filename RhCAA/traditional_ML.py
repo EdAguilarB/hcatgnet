@@ -13,7 +13,7 @@ from Utils.Utils_traditional_ML import model_report, load_variables, hyperparam_
     choose_model, set_seed, split_data, calculate_metrics, outer_summary_report, experiment_summary_report
 
 
-from icecream import ic
+
 
 PARSER = argparse.ArgumentParser(description="Perform nested cross validation for GNN for prediction of internal energy of Molybdenum Carbides.")
 
@@ -46,7 +46,7 @@ def main():
     print("Number of splits: {}".format(HYPERPARAMS["splits"]))
     print("Total number of runs: {}".format(TOT_RUNS))
 
-    data = pd.read_csv(f'Data/Monocyclic/raw/monocyclic_folds.csv')
+    data = pd.read_csv(f'Data/learning/raw/learning_folds.csv')
 
 
     data = data[['LVR1', 'LVR2', 'LVR3', 'LVR4', 'LVR5', 'LVR6', 'LVR7', 'VB', 'ER1', 'ER2', 'ER3', 'ER4', 'ER5', 'ER6',
@@ -58,7 +58,7 @@ def main():
 
     print("Hyperparameter optimisation starting...")
 
-    X, y, feat_names = load_variables(f'Data/Monocyclic/raw/monocyclic_folds.csv')
+    X, y, feat_names = load_variables(f'Data/learning/raw/learning_folds.csv')
 
     best_params = hyperparam_tune(X, y, choose_model(best_params=None, algorithm = ARGS.a), set_seed(ARGS.r))
 

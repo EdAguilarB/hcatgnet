@@ -7,9 +7,9 @@ PARSER = argparse.ArgumentParser(description="Create random folds for cross vali
                                  splitting strategy for GNN approach and atomistic potential training and evaluation process. \
                                  This ensures that both models are trained using the exact same datapoints.")
 
-PARSER.add_argument("-d", "--dir", dest="d", type=str, default="./Monocyclic",
+PARSER.add_argument("-d", "--dir", dest="d", type=str, default="./learning",
                     help="Name of the directory where the csv is stored and where the new one will be stored.")
-PARSER.add_argument("-s", "--seed", type=int, dest="s", default=20232023,
+PARSER.add_argument("-s", "--seed", type=int, dest="s", default=23,
                     help="Seed for random number generator.")
 PARSER.add_argument("-f", "--folds", type=int, dest="f", default=10,
                     help="Number of folds to create.")
@@ -52,7 +52,7 @@ def create_folds(num_folds, df):
 
 def main():
 
-    ligands = pd.read_csv(os.path.join(ARGS.d, 'monocyclic.csv'), index_col=0)
+    ligands = pd.read_csv(os.path.join(ARGS.d, 'learning.csv'), index_col=0)
 
     ligands['category'] = ligands['%top'].apply(lambda m: 0 if m < 50 else 1)
 
@@ -68,11 +68,11 @@ def main():
     ligands['fold'] = ligands.index.map(index_dict)
 
 
-    ligands.to_csv(os.path.join(ARGS.d, 'raw', f'monocyclic_folds.csv'))
+    ligands.to_csv(os.path.join(ARGS.d, 'raw', f'learning_folds.csv'))
 
     save_dir = os.path.join(os.getcwd(), 'raw') if ARGS.d == '.' else os.path.join(ARGS.d, f'{ARGS.f}_folds', 'raw')
 
-    print('monocyclic_folds.csv file was saved in {}'.format(save_dir))
+    print('learning_folds.csv file was saved in {}'.format(save_dir))
 
 
 

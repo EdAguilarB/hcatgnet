@@ -18,11 +18,11 @@ from Utils.ploting_functions import *
 
 PARSER = argparse.ArgumentParser(description="Prediction of %top variable for a given new test set.")
 
-PARSER.add_argument("-d", "--dir", dest="d", type=str, default="bicyclic_test/GNN",
+PARSER.add_argument("-d", "--dir", dest="d", type=str, default="final_test/GNN",
                     help="Name of the directory where plots will be saved.")
-PARSER.add_argument("-m", "--mod", dest="m", type=str, default="RhCASA/GNN",
+PARSER.add_argument("-m", "--mod", dest="m", type=str, default="RhCAA/GNN",
                     help="Name of the directory where the models are stored.")
-PARSER.add_argument("-t", "--test_set", type=str, dest="t", default="Data/Bicyclic",
+PARSER.add_argument("-t", "--test_set", type=str, dest="t", default="Data/final_test",
                     help="Directory where test set graphs are stored.")
 
 ARGS = PARSER.parse_args()
@@ -34,7 +34,7 @@ def main():
     pwd = os.getcwd()
     test_set = os.path.join(pwd, ARGS.t)
     
-    bicyclic = ChiralLigands_regr(root = test_set, filename= 'bicyclic.csv')
+    bicyclic = ChiralLigands_regr(root = test_set, filename= 'final_test.csv')
     print("Dataset type: ", type(bicyclic))
     print("Dataset length: ", bicyclic.len())
     print("Dataset node features: ", bicyclic.num_features)
