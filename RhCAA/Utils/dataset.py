@@ -119,15 +119,15 @@ class ChiralLigands_class(Dataset):
             # Feature 1: Atomic number        
             node_feats += one_h_e(atom.GetSymbol(), self.elem_list)
             # Feature 2: Atom degree
-            #node_feats += one_h_e(atom.GetDegree(), [1, 2, 3, 4])
+            node_feats += one_h_e(atom.GetDegree(), [1, 2, 3, 4])
             # Feature 3: Hybridization
-            #node_feats += one_h_e(atom.GetHybridization(), [0,2,3,4])
+            node_feats += one_h_e(atom.GetHybridization(), [0,2,3,4])
             # Feature 4: Aromaticity
-            #node_feats += [atom.GetIsAromatic()]
+            node_feats += [atom.GetIsAromatic()]
             # Feature 5: In Ring
-            #node_feats += [atom.IsInRing()]
+            node_feats += [atom.IsInRing()]
             # Feature 6: Chirality
-            #node_feats += one_h_e(atom.GetChiralTag(),[0,1,2])
+            node_feats += one_h_e(atom.GetChiralTag(),[0,1,2])
             #feature 7: mol configuration
             node_feats.append(mol_confg)
 
