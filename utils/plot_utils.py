@@ -5,7 +5,7 @@ from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error
 import numpy as np
 import pandas as pd
 import os
-from seaborn import violinplot, stripplot, jointplot
+from seaborn import violinplot, stripplot, jointplot, barplot
 from icecream import ic
 
 def create_st_parity_plot(real, predicted, figure_name, save_path=None):
@@ -242,4 +242,26 @@ def create_parity_plot(data: pd.DataFrame, save_path:str, tml_algorithm:str):
     plt.savefig(os.path.join(save_path, f'parity_plot_{tml_algorithm}'), dpi=300, bbox_inches='tight')
     plt.close()
 
+
+
+def plot_importances(df, save_path: str):
+    plt.figure(figsize=(10, 6))
+
+    ax = barplot(df, x="score", y="labels", estimator="sum", errorbar=None)
+    ax.bar_label(ax.containers[0], fontsize=10)
+    # ax.set_yticklabels(ax.get_yticklabels(), verticalalignment='center', horizontalalignment='right')
+
+    plt.xlabel('Feature Importance Score', fontsize=16)
+    plt.ylabel('Feature', fontsize=16)
+
+    # Save the figure before displaying it
+    plt.savefig(os.path.join(save_path, 'node_feature_importance_plot'), dpi=300, bbox_inches='tight')
+
+    # Display the plot
+    plt.show()
+
+    print('Node feature importance plot has been saved in the directory {}'.format(save_path))
+    plt.close()
+
+    
 
