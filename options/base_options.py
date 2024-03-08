@@ -25,7 +25,7 @@ class BaseOptions:
         self.parser.add_argument(
             '--filename',
             type=str,
-            default='learning_folds.csv',
+            default='learning.csv',
             help='name of the csv file',
             )
         
