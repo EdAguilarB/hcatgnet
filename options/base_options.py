@@ -177,6 +177,20 @@ class BaseOptions:
             )
         
         self.parser.add_argument(
+            '--explain_reactions',
+            type=list,
+            default=[86, 429, 93, 95, 99, 101],
+            help='List of index of reactions to explain',
+        )
+
+        self.parser.add_argument(
+            '--explain_model',
+            type=list,
+            default=[8, 10],
+            help='List of outer, inner fold to explain',
+        )
+        
+        self.parser.add_argument(
             '--global_seed',
             type=int,
             default=20232023,

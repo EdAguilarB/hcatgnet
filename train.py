@@ -8,7 +8,7 @@ from copy import deepcopy
 from icecream import ic
 from call_methods import make_network, create_loaders
 from utils.utils_model import train_network, eval_network, network_report, network_outer_report
-from utils.experiments import train_tml_model_nested_cv, predict_final_test_network, plot_results
+from utils.experiments import train_tml_model_nested_cv, predict_final_test_network, plot_results, explain_model
 
 
 from torch_geometric.loader import DataLoader
@@ -152,5 +152,6 @@ if __name__ == "__main__":
     
     #predict_final_test_network(parent_dir=os.getcwd(), opt=opt)
 
-    plot_results(opt=opt, exp_dir=os.path.join(os.getcwd(), opt.log_dir_results, 'learning_set'))
-    plot_results(opt=opt, exp_dir=os.path.join(os.getcwd(), opt.log_dir_results, 'final_test'))
+    #plot_results(opt=opt, exp_dir=os.path.join(os.getcwd(), opt.log_dir_results, 'learning_set'))
+    #plot_results(opt=opt, exp_dir=os.path.join(os.getcwd(), opt.log_dir_results, 'final_test'))
+    explain_model(exp_path=os.path.join(os.getcwd(), opt.log_dir_results, 'learning_set', 'results_GNN'), opt=opt)
