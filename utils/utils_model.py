@@ -451,22 +451,23 @@ def tml_report(log_dir,
                data, 
                save_all=True):
     
+    #1) create a directory to store the results
     log_dir = "{}/Fold_{}_test_set/Fold_{}_val_set".format(log_dir, outer, inner)
     os.makedirs(log_dir, exist_ok=True)
 
-    # 1) Get time of the run
+    #2) Get time of the run
     today = date.today()
     today_str = str(today.strftime("%d-%b-%Y"))
     time = str(datetime.now())[11:]
     time = time[:8]
     run_period = "{}, {}\n".format(today_str, time)
 
-    # 2) Unfold  train/val/test dataloaders
+    #3) Unfold  train/val/test dataloaders
     train_data, val_data, test_data = data[0], data[1], data[2]
     N_train, N_val, N_test = len(train_data), len(val_data), len(test_data)
     N_tot = N_train + N_val + N_test 
 
-    # 9) Save dataframes for future use
+    #4) Save dataframes for future use
     if save_all:
         train_data.to_csv("{}/train.csv".format(log_dir))
         val_data.to_csv("{}/val.csv".format(log_dir))
@@ -474,7 +475,7 @@ def tml_report(log_dir,
 
     test_data.to_csv("{}/test.csv".format(log_dir))
 
-# Performance Report
+    #5) Performance Report
     file1 = open("{}/performance.txt".format(log_dir), "w")
     file1.write(run_period)
     file1.write("---------------------------------------------------------\n")
