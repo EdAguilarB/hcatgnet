@@ -9,6 +9,7 @@ from tqdm import tqdm
 from molvs import standardize_smiles
 import sys
 from data.datasets import reaction_graph
+from sklearn.model_selection import StratifiedKFold
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -16,13 +17,21 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 class rhcaa_diene(reaction_graph):
 
     def __init__(self, opt:argparse.Namespace, filename: str, molcols: list, root: str = None, include_fold = True) -> None:
+
         self._include_fold = include_fold
+
+        if self._include_fold:
+            try:
+                file_folds = filename[:-4] + '_folds' + filename[-4:]
+                pd.read_csv(os.path.join(root, 'raw', f'{file_folds}'))
+            except:
+                self.split_data(root, filename, opt.folds)
+                filename = filename[:-4] + '_folds' + filename[-4:]
+
         super().__init__(opt = opt, filename = filename, mol_cols = molcols, root=root)
 
         self._name = "rhcaa_diene"
         
-
-
     def process(self):
 
         self.data = pd.read_csv(self.raw_paths[0]).reset_index()
@@ -122,23 +131,6 @@ class rhcaa_diene(reaction_graph):
         else:
             cat = [1]
         return torch.tensor(cat, dtype=torch.int64)
-
-
-    def _get_adjacency_info(self, mol):
-        """
-        We could also use rdmolops.GetAdjacencyMatrix(mol)
-        but we want to be sure that the order of the indices
-        matches the order of the edge features
-        """
-        edge_indices = []
-        for bond in mol.GetBonds():
-            i = bond.GetBeginAtomIdx()
-            j = bond.GetEndAtomIdx()
-            edge_indices += [[i, j], [j, i]]
-
-        edge_indices = torch.tensor(edge_indices)
-        edge_indices = edge_indices.t().to(torch.long).view(2, -1)
-        return edge_indices
     
     def _get_edge_features(self, mol):
 
@@ -174,3 +166,58 @@ class rhcaa_diene(reaction_graph):
 
         return torch.tensor(all_edge_feats, dtype=torch.float), edge_indices
     
+
+    def _create_folds(num_folds, df):
+        """
+        splits a dataset in a given quantity of folds
+
+        Args:
+        num_folds = number of folds to create
+        df = dataframe to be splited
+
+        Returns:
+        dataset with new "folds" and "mini_folds" column with information of fold for each datapoint
+        """
+
+        # Calculate the number of data points in each fold
+        fold_size = len(df) // num_folds
+        remainder = len(df) % num_folds
+
+        # Create a 'fold' column to store fold assignments
+        fold_column = []
+
+        # Assign folds
+        for fold in range(1, num_folds + 1):
+            fold_count = fold_size
+            if fold <= remainder:
+                fold_count += 1
+            fold_column.extend([fold] * fold_count)
+
+        # Assign the 'fold' column to the DataFrame
+        df['fold'] = fold_column
+
+        return df
+    
+
+    def split_data(self, root, filename, n_folds):
+
+        dataset = pd.read_csv(os.path.join(root, 'raw', f'{filename}'))
+        dataset['category'] = dataset['%top'].apply(lambda m: 0 if m < 50 else 1)
+
+        folds = StratifiedKFold(n_splits = n_folds, shuffle = True, random_state=23)
+
+        test_idx = []
+
+        for _, test in folds.split(dataset['ER1'], dataset['category']):
+            test_idx.append(test)
+
+        index_dict = {index: list_num for list_num, index_list in enumerate(test_idx) for index in index_list}
+
+        dataset['fold'] = dataset.index.map(index_dict)
+
+        filename = filename[:-4] + '_folds' + filename[-4:]
+
+        dataset.to_csv(os.path.join(root, 'raw', filename))
+
+        print('{}.csv file was saved in {}'.format(filename, os.path.join(root, 'raw')))
+

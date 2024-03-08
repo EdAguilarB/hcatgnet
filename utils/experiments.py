@@ -35,7 +35,8 @@ def train_tml_model_nested_cv(opt: argparse.Namespace, parent_dir:str) -> None:
     current_dir = parent_dir
 
     # Load the data
-    data = pd.read_csv(f'{opt.root}/raw/{opt.filename}')
+    filename = opt.filename[:-4] + '_folds' + opt.filename[-4:]
+    data = pd.read_csv(f'{opt.root}/raw/{filename}')
     data = data[['LVR1', 'LVR2', 'LVR3', 'LVR4', 'LVR5', 'LVR6', 'LVR7', 'VB', 'ER1', 'ER2', 'ER3', 'ER4', 'ER5', 'ER6',
                'ER7', 'SStoutR1', 'SStoutR2', 'SStoutR3', 'SStoutR4', '%top', 'fold', 'index']]
     descriptors = ['LVR1', 'LVR2', 'LVR3', 'LVR4', 'LVR5', 'LVR6', 'LVR7', 'VB', 'ER1', 'ER2', 'ER3', 'ER4', 'ER5', 'ER6',
