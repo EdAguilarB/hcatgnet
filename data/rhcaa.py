@@ -75,7 +75,7 @@ class rhcaa_diene(reaction_graph):
             
             torch.save(data, 
                        os.path.join(self.processed_dir, 
-                                    f'molecules_{index}_regr.pt'))
+                                    f'reaction_{index}.pt'))
 
             if index % 100 == 0:
                 print('Reaction {} processed and saved as reaction_{}.pt'.format(index, index))

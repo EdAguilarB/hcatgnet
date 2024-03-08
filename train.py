@@ -111,8 +111,6 @@ def train_network_nested_cv() -> None:
             training_time = (time.time() - start_time)/60
             print('Training time: {:.2f} minutes'.format(training_time))
 
-             
-
             print(f"Training for test outer fold: {outer}, and validation inner fold: {real_inner} completed.")
             print(f"Train size: {len(train_loader.dataset)}, Val size: {len(val_loader.dataset)}, Test size: {len(test_loader.dataset)}")
 
@@ -146,17 +144,12 @@ def train_network_nested_cv() -> None:
     
     print('All runs completed')
 
-    train_tml_model_nested_cv(opt, current_dir)
-    predict_final_test_network(parent_dir=current_dir, opt=opt)
-
-
-
-
 opt = BaseOptions().parse()
 
 if __name__ == "__main__":
     #train_network_nested_cv()
     #train_tml_model_nested_cv(opt=opt, parent_dir=os.getcwd())
+    
     #predict_final_test_network(parent_dir=os.getcwd(), opt=opt)
 
     plot_results(opt=opt, exp_dir=os.path.join(os.getcwd(), opt.log_dir_results, 'learning_set'))
