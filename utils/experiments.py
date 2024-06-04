@@ -316,8 +316,8 @@ def plot_results(exp_dir, opt):
     create_bar_plot(means=(recall_mean_gnn, recall_mean_tml), stds=(recall_gnn_std, recall_tml_std), min = minimun, max = maximun, metric = 'Recall', save_path= save_dir, tml_algorithm=opt.tml_algorithm)
 
     results_all['Error'] = results_all['real_ddG'] - results_all['predicted_ddG']
-    results_all['real_face'] = np.where(results_all['real_ddG'] > 50, 1, 0)
-    results_all['predicted_face'] = np.where(results_all['predicted_ddG'] > 50, 1, 0)
+    results_all['real_face'] = np.where(results_all['real_ddG'] > 0, 1, 0)
+    results_all['predicted_face'] = np.where(results_all['predicted_ddG'] > 0, 1, 0)
 
     create_violin_plot(data=results_all, save_path= save_dir)
     create_strip_plot(data=results_all, save_path= save_dir)

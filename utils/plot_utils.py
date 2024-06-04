@@ -157,7 +157,7 @@ def create_violin_plot(data, save_path:str):
     violinplot(data = data, x='Test_Fold', y='Error', hue='Method', split=True, gap=.1, inner="quart", fill=False)
 
     plt.xlabel('Fold Used as Test Set', fontsize=18)
-    plt.ylabel('$\%top_{real}-\%top_{predicted}$', fontsize=18)
+    plt.ylabel('$\Delta \Delta G_{real}-\Delta \Delta G_{predicted}$', fontsize=18)
     plt.xticks(fontsize=16)
     plt.yticks(fontsize=16)
     ax= plt.gca()
@@ -172,7 +172,7 @@ def create_strip_plot(data, save_path:str):
     stripplot(data = data, x='Test_Fold', y='Error', hue='Method', size=3,  dodge=True, jitter=True, marker='D', alpha=.3)
 
     plt.xlabel('Fold Used as Test Set', fontsize=18)
-    plt.ylabel('$\%top_{real}-\%top_{predicted}$', fontsize=18)
+    plt.ylabel('$\Delta \Delta G_{real}-\Delta \Delta G_{predicted}$', fontsize=18)
     plt.xticks(fontsize=16)
     plt.yticks(fontsize=16)
     ax= plt.gca()

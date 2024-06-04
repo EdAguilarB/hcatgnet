@@ -158,4 +158,9 @@ opt = BaseOptions().parse()
 
 if __name__ == "__main__":
     #train_network_nested_cv()
-    train_tml_model_nested_cv(opt=opt, parent_dir=os.getcwd())
+    #train_tml_model_nested_cv(opt=opt, parent_dir=os.getcwd())
+    #predict_final_test_network(parent_dir=os.getcwd(), opt=opt)
+
+    print('Plotting results...')
+    plot_results(opt=opt, exp_dir=os.path.join(os.getcwd(), opt.log_dir_results, 'learning_set'))
+    plot_results(opt=opt, exp_dir=os.path.join(os.getcwd(), opt.log_dir_results, 'final_test'))
