@@ -11,6 +11,8 @@ import sys
 from data.datasets import reaction_graph
 from sklearn.model_selection import StratifiedKFold
 
+from icecream import ic
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
@@ -26,7 +28,7 @@ class rhcaa_diene(reaction_graph):
                 pd.read_csv(os.path.join(root, 'raw', f'{file_folds}'))
             except:
                 self.split_data(root, filename, opt.folds)
-                filename = filename[:-4] + '_folds' + filename[-4:]
+            filename = filename[:-4] + '_folds' + filename[-4:]
 
         super().__init__(opt = opt, filename = filename, mol_cols = molcols, root=root)
 
@@ -62,7 +64,9 @@ class rhcaa_diene(reaction_graph):
                     edge_index += max(edge_index_reaction[0]) + 1
                     edge_index_reaction = torch.cat([edge_index_reaction, edge_index], axis=1)
 
-            label = torch.tensor(reaction['%top']).reshape(1)
+            y = torch.tensor(reaction['ddG']).reshape(1)
+            top = torch.tensor(reaction['%top']).reshape(1)
+
 
             if self._include_fold:
                 fold = reaction['fold']
@@ -72,7 +76,8 @@ class rhcaa_diene(reaction_graph):
             data = Data(x=node_feats_reaction, 
                         edge_index=edge_index_reaction, 
                         edge_attr=edge_attr_reaction, 
-                        y=label,
+                        y=y,
+                        top = top,
                         ligand = standardize_smiles(reaction['Ligand']),
                         substrate = standardize_smiles(reaction['substrate']),
                         boron = standardize_smiles(reaction['boron reagent']),
@@ -85,16 +90,12 @@ class rhcaa_diene(reaction_graph):
             torch.save(data, 
                        os.path.join(self.processed_dir, 
                                     f'reaction_{index}.pt'))
-
-            if index % 100 == 0:
-                print('Reaction {} processed and saved as reaction_{}.pt'.format(index, index))
-            
-
     
 
     def _get_node_feats(self, mol, mol_confg):
 
         all_node_feats = []
+        CIPtuples = dict(Chem.FindMolChiralCenters(mol, includeUnassigned=False))
 
         for atom in mol.GetAtoms():
             node_feats = []
@@ -109,7 +110,7 @@ class rhcaa_diene(reaction_graph):
             # Feature 5: In Ring
             node_feats += [atom.IsInRing()]
             # Feature 6: Chirality
-            node_feats += self._one_h_e(atom.GetChiralTag(),[0,1,2])
+            node_feats += self._one_h_e(self._get_atom_chirality(CIPtuples, atom.GetIdx()), ['R', 'S'], 'No_Stereo_Center')
             #feature 7: mol configuration
             node_feats.append(mol_confg)
 
@@ -124,13 +125,6 @@ class rhcaa_diene(reaction_graph):
         label = np.asarray([label])
         return torch.tensor(label, dtype=torch.float)
     
-    def _get_cat(self, label):
-        label = np.asarray(label)
-        if label <= 50:
-            cat = [0]
-        else:
-            cat = [1]
-        return torch.tensor(cat, dtype=torch.int64)
     
     def _get_edge_features(self, mol):
 
