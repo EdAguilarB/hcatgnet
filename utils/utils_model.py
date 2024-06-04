@@ -179,7 +179,7 @@ def network_report(log_dir,
 
     y_pred, y_true, idx = predict_network(model, test_loader)
 
-    pd.DataFrame({'real_%top': y_true, 'predicted_%top': y_pred, 'index': idx}).to_csv("{}/predictions_test_set.csv".format(log_dir))
+    pd.DataFrame({'real_ddG': y_true, 'predicted_ddG': y_pred, 'index': idx}).to_csv("{}/predictions_test_set.csv".format(log_dir))
 
     face_pred = np.where(y_pred > 0, 1, 0)
     face_true = np.where(y_true > 0, 1, 0)
@@ -353,7 +353,7 @@ def extract_metrics(file):
 def load_variables(path:str):
 
     descriptors = ['LVR1', 'LVR2', 'LVR3', 'LVR4', 'LVR5', 'LVR6', 'LVR7', 'VB', 'ER1', 'ER2', 'ER3', 'ER4', 'ER5', 'ER6',
-               'ER7', 'SStoutR1', 'SStoutR2', 'SStoutR3', 'SStoutR4', '%top']
+               'ER7', 'SStoutR1', 'SStoutR2', 'SStoutR3', 'SStoutR4', 'ddG']
 
     data = pd.read_csv(path)
 
@@ -363,9 +363,9 @@ def load_variables(path:str):
     data = data.dropna(axis=0)
 
 
-    X = data.drop(['%top'], axis = 1)
+    X = data.drop(['ddG'], axis = 1)
     X = RobustScaler().fit_transform(np.array(X))
-    y = data['%top']
+    y = data['ddG']
     print('Features shape: ', X.shape)
     print('Y target variable shape: ' , y.shape)
 
@@ -439,7 +439,7 @@ def predict_tml(model, data:pd.DataFrame):
     descriptors = ['LVR1', 'LVR2', 'LVR3', 'LVR4', 'LVR5', 'LVR6', 'LVR7', 'VB', 'ER1', 'ER2', 'ER3', 'ER4', 'ER5', 'ER6',
                'ER7', 'SStoutR1', 'SStoutR2', 'SStoutR3', 'SStoutR4']
     y_pred = model.predict(data[descriptors])
-    y_true = list(data['%top'])
+    y_true = list(data['ddG'])
     idx = list(data['index'])
     return np.array(y_pred), np.array(y_true), np.array(idx)
 
@@ -506,7 +506,7 @@ def tml_report(log_dir,
 
     y_pred, y_true, idx = predict_tml(model=model, data=test_data)
 
-    pd.DataFrame({'real_%top': y_true, 'predicted_%top': y_pred, 'index': idx}).to_csv("{}/predictions_test_set.csv".format(log_dir))
+    pd.DataFrame({'real_ddG': y_true, 'predicted_ddG': y_pred, 'index': idx}).to_csv("{}/predictions_test_set.csv".format(log_dir))
 
     face_pred = np.where(y_pred > 50, 1, 0)
     face_true = np.where(y_true > 50, 1, 0)

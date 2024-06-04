@@ -157,4 +157,5 @@ def train_network_nested_cv() -> None:
 opt = BaseOptions().parse()
 
 if __name__ == "__main__":
-    train_network_nested_cv()
+    #train_network_nested_cv()
+    train_tml_model_nested_cv(opt=opt, parent_dir=os.getcwd())
