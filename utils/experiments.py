@@ -38,7 +38,7 @@ def train_tml_model_nested_cv(opt: argparse.Namespace, parent_dir:str) -> None:
     filename = opt.filename[:-4] + '_folds' + opt.filename[-4:]
     data = pd.read_csv(f'{opt.root}/raw/{filename}')
     data = data[['LVR1', 'LVR2', 'LVR3', 'LVR4', 'LVR5', 'LVR6', 'LVR7', 'VB', 'ER1', 'ER2', 'ER3', 'ER4', 'ER5', 'ER6',
-               'ER7', 'SStoutR1', 'SStoutR2', 'SStoutR3', 'SStoutR4', '%top', 'fold', 'index']]
+               'ER7', 'SStoutR1', 'SStoutR2', 'SStoutR3', 'SStoutR4', 'ddG', 'fold', 'index']]
     descriptors = ['LVR1', 'LVR2', 'LVR3', 'LVR4', 'LVR5', 'LVR6', 'LVR7', 'VB', 'ER1', 'ER2', 'ER3', 'ER4', 'ER5', 'ER6',
                'ER7', 'SStoutR1', 'SStoutR2', 'SStoutR3', 'SStoutR4']
     
@@ -75,16 +75,16 @@ def train_tml_model_nested_cv(opt: argparse.Namespace, parent_dir:str) -> None:
             # Choose the model
             model = choose_model(best_params, opt.tml_algorithm)
             # Fit the model
-            model.fit(train_set[descriptors], train_set['%top'])
+            model.fit(train_set[descriptors], train_set['ddG'])
             # Predict the train set
             preds = model.predict(train_set[descriptors])
-            train_rmse = sqrt(mean_squared_error(train_set['%top'], preds))
+            train_rmse = sqrt(mean_squared_error(train_set['ddG'], preds))
             # Predict the validation set
             preds = model.predict(val_set[descriptors])
-            val_rmse = sqrt(mean_squared_error(val_set['%top'], preds))
+            val_rmse = sqrt(mean_squared_error(val_set['ddG'], preds))
             # Predict the test set
             preds = model.predict(test_set[descriptors])
-            test_rmse = sqrt(mean_squared_error(test_set['%top'], preds))
+            test_rmse = sqrt(mean_squared_error(test_set['ddG'], preds))
 
             print('Outer: {} | Inner: {} | Run {}/{} | Train RMSE {:.3f} % | Val RMSE {:.3f} % | Test RMSE {:.3f} %'.\
                   format(outer, real_inner, counter, TOT_RUNS, train_rmse, val_rmse, test_rmse) )
@@ -187,7 +187,7 @@ def plot_results(exp_dir, opt):
     r2_tml, mae_tml, rmse_tml = [], [], []
     accuracy_tml, precision_tml, recall_tml = [], [], []
 
-    results_all = pd.DataFrame(columns = ['index', 'Test_Fold', 'Val_Fold', 'Method', 'real_%top', 'predicted_%top'])
+    results_all = pd.DataFrame(columns = ['index', 'Test_Fold', 'Val_Fold', 'Method', 'real_ddG', 'predicted_ddG'])
     
     for outer in range(1, opt.folds+1):
 
@@ -315,9 +315,9 @@ def plot_results(exp_dir, opt):
     create_bar_plot(means=(precision_mean_gnn, precision_mean_tml), stds=(precision_gnn_std, precision_tml_std), min = minimun, max = maximun, metric = 'Precision', save_path= save_dir, tml_algorithm=opt.tml_algorithm)
     create_bar_plot(means=(recall_mean_gnn, recall_mean_tml), stds=(recall_gnn_std, recall_tml_std), min = minimun, max = maximun, metric = 'Recall', save_path= save_dir, tml_algorithm=opt.tml_algorithm)
 
-    results_all['Error'] = results_all['real_%top'] - results_all['predicted_%top']
-    results_all['real_face'] = np.where(results_all['real_%top'] > 50, 1, 0)
-    results_all['predicted_face'] = np.where(results_all['predicted_%top'] > 50, 1, 0)
+    results_all['Error'] = results_all['real_ddG'] - results_all['predicted_ddG']
+    results_all['real_face'] = np.where(results_all['real_ddG'] > 50, 1, 0)
+    results_all['predicted_face'] = np.where(results_all['predicted_ddG'] > 50, 1, 0)
 
     create_violin_plot(data=results_all, save_path= save_dir)
     create_strip_plot(data=results_all, save_path= save_dir)
@@ -339,18 +339,18 @@ def plot_results(exp_dir, opt):
     print('Accuracy: {:.3f}'.format(accuracy_score(gnn_predictions['real_face'], gnn_predictions['predicted_face'])))
     print('Precision: {:.3f}'.format(precision_score(gnn_predictions['real_face'], gnn_predictions['predicted_face'])))
     print('Recall: {:.3f}'.format(recall_score(gnn_predictions['real_face'], gnn_predictions['predicted_face'])))
-    print('R2: {:.3f}'.format(r2_score(gnn_predictions['real_%top'], gnn_predictions['predicted_%top'])))
-    print('MAE: {:.3f}'.format(mean_absolute_error(gnn_predictions['real_%top'], gnn_predictions['predicted_%top'])))
-    print('RMSE: {:.3f} \n'.format(sqrt(mean_squared_error(gnn_predictions['real_%top'], gnn_predictions['predicted_%top']))))
+    print('R2: {:.3f}'.format(r2_score(gnn_predictions['real_ddG'], gnn_predictions['predicted_ddG'])))
+    print('MAE: {:.3f}'.format(mean_absolute_error(gnn_predictions['real_ddG'], gnn_predictions['predicted_ddG'])))
+    print('RMSE: {:.3f} \n'.format(sqrt(mean_squared_error(gnn_predictions['real_ddG'], gnn_predictions['predicted_ddG']))))
     
     tml_predictions = results_all[results_all['Method'] == opt.tml_algorithm]
     print(f'Final metrics for {opt.tml_algorithm}:')
     print('Accuracy: {:.3f}'.format(accuracy_score(tml_predictions['real_face'], tml_predictions['predicted_face'])))
     print('Precision: {:.3f}'.format(precision_score(tml_predictions['real_face'], tml_predictions['predicted_face'])))
     print('Recall: {:.3f}'.format(recall_score(tml_predictions['real_face'], tml_predictions['predicted_face'])))
-    print('R2: {:.3f}'.format(r2_score(tml_predictions['real_%top'], tml_predictions['predicted_%top'])))
-    print('MAE: {:.3f}'.format(mean_absolute_error(tml_predictions['real_%top'], tml_predictions['predicted_%top'])))
-    print('RMSE: {:.3f} \n'.format(sqrt(mean_squared_error(tml_predictions['real_%top'], tml_predictions['predicted_%top']))))
+    print('R2: {:.3f}'.format(r2_score(tml_predictions['real_ddG'], tml_predictions['predicted_ddG'])))
+    print('MAE: {:.3f}'.format(mean_absolute_error(tml_predictions['real_ddG'], tml_predictions['predicted_ddG'])))
+    print('RMSE: {:.3f} \n'.format(sqrt(mean_squared_error(tml_predictions['real_ddG'], tml_predictions['predicted_ddG']))))
     
 
 def explain_model(exp_path:str, opt: argparse.Namespace) -> None:
@@ -432,8 +432,8 @@ def explain_model(exp_path:str, opt: argparse.Namespace) -> None:
         mol = get_graph_by_idx(loader, molecule)
         print('Analysing reaction {}'.format(molecule))
         print('Ligand id: {}'.format(mol.ligand_id[0]))
-        print('Reaction %top: {:.2f}'.format(mol.y.item()))
-        print('Reaction predicted %top: {:.2f}'.format(explainer.get_prediction(x = mol.x, edge_index=mol.edge_index, batch_index=mol.batch).item()))
+        print('Reaction ddG: {:.2f}'.format(mol.y.item()))
+        print('Reaction predicted ddG: {:.2f}'.format(explainer.get_prediction(x = mol.x, edge_index=mol.edge_index, batch_index=mol.batch).item()))
         explanation = explainer(x = mol.x, edge_index=mol.edge_index,  batch_index=mol.batch)
         plot_molecule_importance(mol_graph=mol, mol='l', explanation=explanation, palette='normal')
 

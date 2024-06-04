@@ -42,6 +42,8 @@ class rhcaa_diene(reaction_graph):
 
             node_feats_reaction = None
 
+            temp = reaction['temp']/100
+
             for reactant in self.mol_cols:  
 
                 #create a molecule object from the smiles string
@@ -49,7 +51,7 @@ class rhcaa_diene(reaction_graph):
 
                 mol = Chem.rdmolops.AddHs(mol)
 
-                node_feats = self._get_node_feats(mol, reaction['Confg'])
+                node_feats = self._get_node_feats(mol, reaction['Confg'], reactant, temp)
 
                 edge_attr, edge_index = self._get_edge_features(mol)
 
@@ -92,7 +94,7 @@ class rhcaa_diene(reaction_graph):
                                     f'reaction_{index}.pt'))
     
 
-    def _get_node_feats(self, mol, mol_confg):
+    def _get_node_feats(self, mol, mol_confg, reactant, temperature):
 
         all_node_feats = []
         CIPtuples = dict(Chem.FindMolChiralCenters(mol, includeUnassigned=False))
@@ -111,8 +113,13 @@ class rhcaa_diene(reaction_graph):
             node_feats += [atom.IsInRing()]
             # Feature 6: Chirality
             node_feats += self._one_h_e(self._get_atom_chirality(CIPtuples, atom.GetIdx()), ['R', 'S'], 'No_Stereo_Center')
-            #feature 7: mol configuration
-            node_feats.append(mol_confg)
+            #feature 7: ligand configuration
+            if reactant == 'Ligand':
+                node_feats += self._one_h_e(mol_confg, [1, 0])
+            else:
+                node_feats += [0,0]
+            # feature 8: reaction temperature
+            node_feats += [temperature]
 
             # Append node features to matrix
             all_node_feats.append(node_feats)

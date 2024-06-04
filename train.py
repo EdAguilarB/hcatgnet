@@ -8,7 +8,7 @@ from copy import deepcopy
 from call_methods import make_network, create_loaders
 from utils.utils_model import train_network, eval_network, network_report, network_outer_report
 from utils.experiments import train_tml_model_nested_cv, predict_final_test_network, plot_results, explain_model
-
+from icecream import ic
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
@@ -28,6 +28,8 @@ def train_network_nested_cv() -> None:
 
     # Create the dataset
     data = rhcaa_diene(opt, opt.filename, opt.mol_cols, root=opt.root)
+    ic(data[0])
+    ic(data[0].x)
 
     # Create the loaders and nested cross validation iterators
     ncv_iterators = create_loaders(data, opt)

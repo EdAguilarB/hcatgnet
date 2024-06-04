@@ -181,8 +181,8 @@ def network_report(log_dir,
 
     pd.DataFrame({'real_%top': y_true, 'predicted_%top': y_pred, 'index': idx}).to_csv("{}/predictions_test_set.csv".format(log_dir))
 
-    face_pred = np.where(y_pred > 50, 1, 0)
-    face_true = np.where(y_true > 50, 1, 0)
+    face_pred = np.where(y_pred > 0, 1, 0)
+    face_true = np.where(y_true > 0, 1, 0)
     metrics, metrics_names = calculate_metrics(face_true, face_pred, task = 'c')
 
     file1.write("Test set\n")
@@ -192,9 +192,9 @@ def network_report(log_dir,
         file1.write("{} = {:.3f}\n".format(name, value))
     
     error = abs(y_pred-y_true)
-    y_true = y_true[error<50]
-    y_pred = y_pred[error<50]
-    idx = idx[error<50]
+    y_true = y_true[error<14]
+    y_pred = y_pred[error<14]
+    idx = idx[error<14]
 
     file1.write("Test Set Total Correct Face of Addition Predictions = {}\n".format(len(y_true)))
 
