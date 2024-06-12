@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 import os
 from seaborn import violinplot, stripplot, jointplot, barplot
+from math import sqrt
 from icecream import ic
 
 def create_st_parity_plot(real, predicted, figure_name, save_path=None):
@@ -92,7 +93,7 @@ def create_it_parity_plot(real, predicted, index, figure_name, save_path=None):
         fig.write_html(save_path)
 
 
-def plot_tsne_with_subsets(data_df, feature_columns, color_column, set_column, fig_name=None, save_path=None, perplexity=30, learning_rate=200, n_iter=1000):
+def plot_tsne_with_subsets(data_df, feature_columns, color_column, set_column, fig_name=None, save_path=None, perplexity=30, learning_rate=200, n_iter=1000, show = False):
     # Perform t-SNE
     features = data_df[feature_columns]
     tsne = TSNE(n_components=2, perplexity=perplexity, learning_rate=learning_rate, n_iter=n_iter, random_state=42)
@@ -134,6 +135,9 @@ def plot_tsne_with_subsets(data_df, feature_columns, color_column, set_column, f
         save_path = os.path.join(save_path, fig_name)
         os.makedirs(os.path.dirname(save_path), exist_ok=True)
         plt.savefig(save_path, bbox_inches='tight')
+
+    if show:
+        plt.show()
 
     plt.close()
 
@@ -310,5 +314,85 @@ def plot_importances(df, save_path: str):
     print('Node feature importance plot has been saved in the directory {}'.format(save_path))
     plt.close()
 
+
+
+def plot_mean_predictions(df):
+
+# Create the parity plot
+    plt.figure(figsize=(12, 10))
+    sns.set(style="whitegrid")
+
+    # Scatter plot with hue for different methods
+    scatter = sns.scatterplot(x='real_ddG', y='mean_predicted_ddG', data=df, s=100, edgecolor='k', hue='Method', palette='Set2')
+
+    # Add regression lines for each method and calculate metrics
+    metrics_text = []
+    for method in df['Method'].unique():
+        subset = df[df['Method'] == method]
+        sns.regplot(x='real_ddG', y='mean_predicted_ddG', data=subset, scatter=False, ci=None, label=f'Regression {method}', line_kws={'linestyle': '--'})
+        
+        # Calculate R2 and MAE
+        r2 = r2_score(subset['real_ddG'], subset['mean_predicted_ddG'])
+        mae = mean_absolute_error(subset['real_ddG'], subset['mean_predicted_ddG'])
+        rmse = sqrt(mean_squared_error(subset['real_ddG'], subset['mean_predicted_ddG']))
+        metrics_text.append(f"{method}: $R^2$: {r2:.2f}, MAE: {mae:.2f}, RMSE: {rmse:.2f}")
+
+    # Line of equality
+    max_val = max(df['real_ddG'].max(), df['mean_predicted_ddG'].max())
+    min_val = min(df['real_ddG'].min(), df['mean_predicted_ddG'].min())
+    plt.plot([min_val, max_val], [min_val, max_val], 'k-', linewidth=2, label='Line of Equality')
+
+    # Titles and labels
+    plt.xlabel('Real ΔΔG / kJ $mol^{-1}$', fontsize=26)
+    plt.ylabel('Mean Predicted ΔΔG / kJ $mol^{-1}$', fontsize=26)
+
+    # Enhancing the overall look
+    plt.xticks(fontsize=18)
+    plt.yticks(fontsize=18)
+    plt.grid(True, linestyle='--', alpha=0.7)
+    sns.despine(trim=True)
+
+    # Add metrics as text
+    metrics_text_str = "\n".join(metrics_text)
+    plt.text(0.4, 0.1, metrics_text_str, ha='left', va='top', transform=plt.gca().transAxes, fontsize=16, bbox=dict(facecolor='white', alpha=0.8))
+
+    # Adjust legend
+    plt.legend(fontsize=16, title_fontsize=18)
+
+    # Show the plot
+    plt.tight_layout()
+    plt.show()
     
 
+def plot_distribution(df):
+    # Use seaborn style for the plot
+    sns.set(style="whitegrid")
+
+    # Create the figure and subplots
+    fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(18, 6))
+
+    # First subplot: Histogram of reactions['%top']
+    axes[0].hist(df['%top'], bins=10, color='skyblue', edgecolor='black', alpha=0.7)
+    #axes[0].set_title('Distribution of Top Facial Additions', fontsize=16)
+    axes[0].set_xlabel('Reaction Top Addition (%)', fontsize=18)
+    axes[0].set_ylabel('Frequency', fontsize=18)
+    axes[0].grid(True, linestyle='--', alpha=0.7)
+    axes[0].tick_params(axis='both', which='major', labelsize=18)  # Increased label size
+    axes[0].spines['top'].set_visible(False)
+    axes[0].spines['right'].set_visible(False)
+
+    # Second subplot: Histogram of reactions['ddG']
+    axes[1].hist(df['ddG'], bins=10, color='lightcoral', edgecolor='black', alpha=0.7)
+    #axes[1].set_title('Distribution of $\Delta \Delta$G', fontsize=16)
+    axes[1].set_xlabel('$\Delta \Delta$G (kJ/mol)', fontsize=18)
+    #axes[1].set_ylabel('Frequency', fontsize=14)
+    axes[1].grid(True, linestyle='--', alpha=0.7)
+    axes[1].tick_params(axis='both', which='major', labelsize=18)  # Increased label size
+    axes[1].spines['top'].set_visible(False)
+    axes[1].spines['right'].set_visible(False)
+
+    # Adjust layout to make sure everything fits
+    plt.tight_layout()
+
+    # Show the plot
+    plt.show()
