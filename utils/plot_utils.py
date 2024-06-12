@@ -1,4 +1,6 @@
 import matplotlib.pyplot as plt
+from sklearn.manifold import TSNE
+import seaborn as sns
 import plotly.express as px
 import plotly.graph_objects as go
 from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error
@@ -89,6 +91,51 @@ def create_it_parity_plot(real, predicted, index, figure_name, save_path=None):
         os.makedirs(os.path.dirname(save_path), exist_ok=True)
         fig.write_html(save_path)
 
+
+def plot_tsne_with_subsets(data_df, feature_columns, color_column, set_column, fig_name=None, save_path=None, perplexity=30, learning_rate=200, n_iter=1000):
+    # Perform t-SNE
+    features = data_df[feature_columns]
+    tsne = TSNE(n_components=2, perplexity=perplexity, learning_rate=learning_rate, n_iter=n_iter, random_state=42)
+    tsne_results = tsne.fit_transform(features)
+
+    # Add t-SNE results back to the DataFrame
+    data_df['tSNE1'] = tsne_results[:, 0]
+    data_df['tSNE2'] = tsne_results[:, 1]
+
+    # Define subsets
+    subsets = data_df[set_column].unique()
+
+    # Create subplots
+    fig, axes = plt.subplots(1, len(subsets), figsize=(20, 8), sharex=True, sharey=True, dpi=300)
+
+    # Plot each subset
+    for i, subset in enumerate(subsets):
+        subset_df = data_df[data_df[set_column] == subset]
+        scatter = axes[i].scatter(subset_df['tSNE1'], subset_df['tSNE2'], c=subset_df[color_column], cmap='plasma', s=100, alpha=0.7, edgecolors='w', linewidth=0.5)
+        axes[i].set_title(f'{subset.capitalize()} Set', fontsize=18, pad=15)
+        if i == 0:
+            axes[i].set_ylabel('tSNE2', fontsize=20, labelpad=15)
+        if i == 1:
+            axes[i].set_xlabel('tSNE1', fontsize=20, labelpad=15)
+        axes[i].grid(True, linestyle='--', alpha=0.6)
+        axes[i].tick_params(axis='both', which='major', labelsize=12)
+
+    # Add color bar to the right
+    cbar = fig.colorbar(scatter, ax=axes, orientation='vertical', fraction=0.02, pad=0.02)
+    cbar.set_label('$\Delta \Delta G$', fontsize=14)
+    cbar.ax.tick_params(labelsize=12)
+
+    # Enhancing the overall look
+    plt.suptitle('t-SNE 2D Visualization by Set', fontsize=22, y=1.05)
+    sns.despine()
+    #plt.tight_layout(rect=[0, 0, 0.95, 1])  # Adjust layout to make room for color bar
+    if save_path and fig_name:
+        # Ensure the directory exists
+        save_path = os.path.join(save_path, fig_name)
+        os.makedirs(os.path.dirname(save_path), exist_ok=True)
+        plt.savefig(save_path, bbox_inches='tight')
+
+    plt.close()
 
 def create_training_plot(df, save_path):
 
@@ -185,27 +232,27 @@ def create_parity_plot(data: pd.DataFrame, save_path:str, tml_algorithm:str):
 
     results_gnn = data[data['Method'] == 'GNN']
 
-    g = jointplot(x="real_%top", y="predicted_%top", data=results_gnn,
+    g = jointplot(x="real_ddG", y="predicted_ddG", data=results_gnn,
                   kind="reg", truncate=False,
-                  xlim=(-1.5, 101), ylim=(-1.5, 101),
+                  xlim=(-16.5, 16.5), ylim=(-16.5, 16.5),
                   color="#1f77b4", height=7,
                   scatter_kws={"s": 5, "alpha": 0.3})
-    plt.axvline(x=50, color='black', linestyle='--', linewidth=.5)
+    plt.axvline(x=0, color='black', linestyle='--', linewidth=.5)
 
     # add horizontal line at y=50
-    plt.axhline(y=50, color='black', linestyle='--', linewidth=.5)
+    plt.axhline(y=0, color='black', linestyle='--', linewidth=.5)
 
-    plt.text(x=25, y=100, s=f"False Positive", fontsize=15, horizontalalignment='center', verticalalignment='center', color='black')
-    plt.text(x=75, y=100, s=f"True Positive", fontsize=15, horizontalalignment='center', verticalalignment='center', color='black')
+    plt.text(x=-7.5, y=15, s=f"False Positive", fontsize=15, horizontalalignment='center', verticalalignment='center', color='black')
+    plt.text(x=7.5, y=15, s=f"True Positive", fontsize=15, horizontalalignment='center', verticalalignment='center', color='black')
 
-    plt.text(x=25, y=45, s=f"True Negative", fontsize=15, horizontalalignment='center', verticalalignment='center', color='black')
-    plt.text(x=75, y=45, s=f"False Negative", fontsize=15, horizontalalignment='center', verticalalignment='center', color='black')
+    plt.text(x=-7.5, y=-.5, s=f"True Negative", fontsize=15, horizontalalignment='center', verticalalignment='center', color='black')
+    plt.text(x=7.5, y=-.5, s=f"False Negative", fontsize=15, horizontalalignment='center', verticalalignment='center', color='black')
 
     g.ax_joint.xaxis.label.set_size(20)
     g.ax_joint.yaxis.label.set_size(20)
 
-    g.ax_joint.set_xlabel('Real %top / %')
-    g.ax_joint.set_ylabel('Predicted %top / %')
+    g.ax_joint.set_xlabel('Real $\Delta \Delta G$ / kJ mol$^{-1}$')
+    g.ax_joint.set_ylabel('Predicted $\Delta \Delta G$ / kJ mol$^{-1}$')
 
     g.ax_joint.tick_params(axis='both', which='major', labelsize=15)
 
@@ -215,27 +262,27 @@ def create_parity_plot(data: pd.DataFrame, save_path:str, tml_algorithm:str):
 
     results_tml = data[data['Method'] == tml_algorithm]
 
-    g = jointplot(x="real_%top", y="predicted_%top", data=results_tml,
+    g = jointplot(x="real_ddG", y="predicted_ddG", data=results_tml,
                   kind="reg", truncate=False,
-                  xlim=(-1.5, 101), ylim=(-1.5, 101),
+                  xlim=(-16.5, 16.5), ylim=(-16.5, 16.5),
                   color="#ff7f0e", height=7,
                   scatter_kws={"s": 5, "alpha": 0.3})
-    plt.axvline(x=50, color='black', linestyle='--', linewidth=.5)
+    plt.axvline(x=0, color='black', linestyle='--', linewidth=.5)
 
     # add horizontal line at y=50
-    plt.axhline(y=50, color='black', linestyle='--', linewidth=.5)
+    plt.axhline(y=0, color='black', linestyle='--', linewidth=.5)
 
-    plt.text(x=25, y=100, s=f"False Positive", fontsize=15, horizontalalignment='center', verticalalignment='center', color='black')
-    plt.text(x=75, y=100, s=f"True Positive", fontsize=15, horizontalalignment='center', verticalalignment='center', color='black')
+    plt.text(x=-7.5, y=15, s=f"False Positive", fontsize=15, horizontalalignment='center', verticalalignment='center', color='black')
+    plt.text(x=7.5, y=15, s=f"True Positive", fontsize=15, horizontalalignment='center', verticalalignment='center', color='black')
 
-    plt.text(x=25, y=45, s=f"True Negative", fontsize=15, horizontalalignment='center', verticalalignment='center', color='black')
-    plt.text(x=75, y=45, s=f"False Negative", fontsize=15, horizontalalignment='center', verticalalignment='center', color='black')
+    plt.text(x=-7.5, y=-.5, s=f"True Negative", fontsize=15, horizontalalignment='center', verticalalignment='center', color='black')
+    plt.text(x=7.5, y=-.5, s=f"False Negative", fontsize=15, horizontalalignment='center', verticalalignment='center', color='black')
 
     g.ax_joint.xaxis.label.set_size(20)
     g.ax_joint.yaxis.label.set_size(20)
 
-    g.ax_joint.set_xlabel('Real %top / %')
-    g.ax_joint.set_ylabel('Predicted %top / %')
+    g.ax_joint.set_xlabel('Real $\Delta \Delta G$ / kJ mol$^{-1}$')
+    g.ax_joint.set_ylabel('Predicted $\Delta \Delta G$ / kJ mol$^{-1}$')
 
     g.ax_joint.tick_params(axis='both', which='major', labelsize=15)
 
