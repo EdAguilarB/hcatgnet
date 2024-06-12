@@ -51,7 +51,7 @@ class GCN(BaseNetwork):
         
 
 
-    def forward(self, reaction_graph):
+    def forward(self, reaction_graph, return_graph_embedding=False):
 
         x, edge_index, batch, edge_weight = reaction_graph.x, reaction_graph.edge_index, reaction_graph.batch, None
 
@@ -65,10 +65,15 @@ class GCN(BaseNetwork):
         x = torch.cat([gmp(x, batch), 
                             gap(x, batch)], dim=1)
         
+        graph_emb = x
+        
         for i in range(self.readout_layers):
             x = self.readout[i](x)
 
-        return x*100
+        if return_graph_embedding == True:    
+            return x, graph_emb
+        else:
+            return x
 
 
 class GCN_explain(BaseNetwork):
