@@ -27,7 +27,7 @@ class rhcaa_diene(reaction_graph):
                 file_folds = filename[:-4] + '_folds' + filename[-4:]
                 pd.read_csv(os.path.join(root, 'raw', f'{file_folds}'))
             except:
-                self.split_data(root, filename, opt.folds)
+                self.split_data(root, filename, opt.folds, opt.global_seed)
             filename = filename[:-4] + '_folds' + filename[-4:]
 
         super().__init__(opt = opt, filename = filename, mol_cols = molcols, root=root)
@@ -115,7 +115,7 @@ class rhcaa_diene(reaction_graph):
             node_feats += self._one_h_e(self._get_atom_chirality(CIPtuples, atom.GetIdx()), ['R', 'S'], 'No_Stereo_Center')
             #feature 7: ligand configuration
             if reactant == 'Ligand':
-                node_feats += self._one_h_e(mol_confg, [1, 0])
+                node_feats += self._one_h_e(mol_confg, [2, 1], 0)
             else:
                 node_feats += [0,0]
             # feature 8: reaction temperature
@@ -200,12 +200,12 @@ class rhcaa_diene(reaction_graph):
         return df
     
 
-    def split_data(self, root, filename, n_folds):
+    def split_data(self, root, filename, n_folds, random_seed):
 
         dataset = pd.read_csv(os.path.join(root, 'raw', f'{filename}'))
         dataset['category'] = dataset['%top'].apply(lambda m: 0 if m < 50 else 1)
 
-        folds = StratifiedKFold(n_splits = n_folds, shuffle = True, random_state=23)
+        folds = StratifiedKFold(n_splits = n_folds, shuffle = True, random_state=random_seed)
 
         test_idx = []
 
