@@ -76,25 +76,36 @@ def eval_network(model, loader, device):
     return loss / len(loader.dataset)
 
 
-def predict_network(model, loader):
+def predict_network(model, loader, return_emb = False):
     model.to('cpu')
     model.eval()
 
-    y_pred, y_true, idx = [], [], []
+    y_pred, y_true, idx, embeddings = [], [], [], []
 
     for batch in loader:
         batch = batch.to('cpu')
-        out = model(batch)
+        out, emb = model(batch, True)
 
         y_pred.append(out.cpu().detach().numpy())
         y_true.append(batch.y.cpu().detach().numpy())
         idx.append(batch.idx.cpu().detach().numpy())
+        embeddings.append(emb.detach().numpy())
 
     y_pred = np.concatenate(y_pred, axis=0).ravel()
     y_true = np.concatenate(y_true, axis=0).ravel()
     idx = np.concatenate(idx, axis=0).ravel()
+    embeddings = np.concatenate(embeddings, axis=0)
 
-    return y_pred, y_true, idx
+    embeddings = pd.DataFrame(embeddings)
+
+    embeddings['ddG_exp'] = y_true
+    embeddings['ddG_pred'] = y_pred
+    embeddings['index'] = idx
+
+    if return_emb == True:
+        return y_pred, y_true, idx, embeddings
+    else:
+        return y_pred, y_true, idx
 
 
 def network_report(log_dir,
@@ -155,7 +166,8 @@ def network_report(log_dir,
 
     model.load_state_dict(model_params)
 
-    y_pred, y_true, idx = predict_network(model, train_loader)
+    y_pred, y_true, idx, emb_train = predict_network(model, train_loader, True)
+    emb_train['set'] = 'training'
     metrics, metrics_names = calculate_metrics(y_true, y_pred, task = 'r')
 
     file1.write("Training set\n")
@@ -166,7 +178,8 @@ def network_report(log_dir,
 
     
     file1.write("***************\n")
-    y_pred, y_true, idx = predict_network(model, val_loader)
+    y_pred, y_true, idx, emb_val = predict_network(model, val_loader, True)
+    emb_val['set'] = 'val'
     metrics, metrics_names = calculate_metrics(y_true, y_pred, task = 'r')
 
     file1.write("Validation set\n")
@@ -177,7 +190,14 @@ def network_report(log_dir,
 
     file1.write("***************\n")
 
-    y_pred, y_true, idx = predict_network(model, test_loader)
+    y_pred, y_true, idx, emb_test = predict_network(model, test_loader, True)
+    emb_test['set'] = 'test'
+
+    emb_all = pd.concat([emb_train, emb_val, emb_test], axis=0)
+
+    plot_tsne_with_subsets(data_df=emb_all, feature_columns=[i for i in range(128)], color_column='ddG_exp', set_column='set', fig_name='tsne_emb_exp', save_path=log_dir)
+    #plot_tsne_with_subsets(data_df=emb_all, feature_columns=[i for i in range(128)], color_column='ddG_pred', set_column='set', fig_name='tsne_emb_pred', save_path=log_dir)
+    emb_all.to_csv("{}/embeddings.csv".format(log_dir))
 
     pd.DataFrame({'real_ddG': y_true, 'predicted_ddG': y_pred, 'index': idx}).to_csv("{}/predictions_test_set.csv".format(log_dir))
 
@@ -185,18 +205,21 @@ def network_report(log_dir,
     face_true = np.where(y_true > 0, 1, 0)
     metrics, metrics_names = calculate_metrics(face_true, face_pred, task = 'c')
 
+    correct_side_add = face_pred == face_true
+
     file1.write("Test set\n")
     file1.write("Set size = {}\n".format(N_test))
 
     for name, value in zip(metrics_names, metrics):
         file1.write("{} = {:.3f}\n".format(name, value))
     
-    error = abs(y_pred-y_true)
-    y_true = y_true[error<14]
-    y_pred = y_pred[error<14]
-    idx = idx[error<14]
+    #error = abs(y_pred-y_true)
+    #y_true = y_true[correct_side_add]
+    #y_pred = y_pred[correct_side_add]
+    #idx = idx[correct_side_add]
 
-    file1.write("Test Set Total Correct Face of Addition Predictions = {}\n".format(len(y_true)))
+
+    file1.write("Test Set Total Correct Face of Addition Predictions = {}\n".format(np.sum(correct_side_add)))
 
     metrics, metrics_names = calculate_metrics(y_true, y_pred, task = 'r')
 
@@ -224,9 +247,9 @@ def network_report(log_dir,
             outliers_error_list.append(error_test[sample])
             index_list.append(sample)
             if counter < 10:
-                file1.write("0{}) {}    Error: {:.2f} %    (index={})\n".format(counter, idx[sample], error_test[sample], sample))
+                file1.write("0{}) {}    Error: {:.2f} kJ/mol    (index={})\n".format(counter, idx[sample], error_test[sample], sample))
             else:
-                file1.write("{}) {}    Error: {:.2f} %s    (index={})\n".format(counter, idx[sample], error_test[sample], sample))
+                file1.write("{}) {}    Error: {:.2f} kJ/mol    (index={})\n".format(counter, idx[sample], error_test[sample], sample))
 
     file1.close()
 
@@ -350,10 +373,7 @@ def extract_metrics(file):
 ######################################
 ######################################
 
-def load_variables(path:str):
-
-    descriptors = ['LVR1', 'LVR2', 'LVR3', 'LVR4', 'LVR5', 'LVR6', 'LVR7', 'VB', 'ER1', 'ER2', 'ER3', 'ER4', 'ER5', 'ER6',
-               'ER7', 'SStoutR1', 'SStoutR2', 'SStoutR3', 'SStoutR4', 'ddG']
+def load_variables(path:str, descriptors:list):
 
     data = pd.read_csv(path)
 
@@ -397,9 +417,10 @@ def hyperparam_tune(X, y, model, seed):
     np.random.seed(seed)
 
     print('ML algorithm to be tunned:', str(model))
+
     if str(model) == 'LinearRegression()':
         return None
-
+    
     else: 
         if str(model) == 'RandomForestRegressor()':
             hyperP = dict(n_estimators=[100, 300, 500, 800], 
@@ -416,13 +437,17 @@ def hyperparam_tune(X, y, model, seed):
 
         gridF = GridSearchCV(model, hyperP, cv=3, verbose=1, n_jobs=-1)
         bestP = gridF.fit(X, y)
-
         params = bestP.best_params_
         print('Best hyperparameters:', params, '\n')
 
         return params
     
+
 def split_data(df:pd.DataFrame):
+
+    '''
+    splits a dataset in a given quantity of folds
+    '''
         
     for outer in np.unique(df['fold']):
         proxy = copy(df)
@@ -435,12 +460,12 @@ def split_data(df:pd.DataFrame):
             yield deepcopy((train, val, test))
 
 
-def predict_tml(model, data:pd.DataFrame):
-    descriptors = ['LVR1', 'LVR2', 'LVR3', 'LVR4', 'LVR5', 'LVR6', 'LVR7', 'VB', 'ER1', 'ER2', 'ER3', 'ER4', 'ER5', 'ER6',
-               'ER7', 'SStoutR1', 'SStoutR2', 'SStoutR3', 'SStoutR4']
+def predict_tml(model, data:pd.DataFrame, descriptors:list):
+
     y_pred = model.predict(data[descriptors])
     y_true = list(data['ddG'])
     idx = list(data['index'])
+
     return np.array(y_pred), np.array(y_true), np.array(idx)
 
 
@@ -449,6 +474,7 @@ def tml_report(log_dir,
                 inner,
                model, 
                data, 
+               descriptors,
                save_all=True):
     
     #1) create a directory to store the results
@@ -483,7 +509,7 @@ def tml_report(log_dir,
     file1.write("Dataset Size = {}\n".format(N_tot))
     file1.write("***************\n")
 
-    y_pred, y_true, idx = predict_tml(model, train_data)
+    y_pred, y_true, idx = predict_tml(model, train_data, descriptors)
     metrics, metrics_names = calculate_metrics(y_true, y_pred, task = 'r')
 
     file1.write("Training set\n")
@@ -493,7 +519,7 @@ def tml_report(log_dir,
         file1.write("{} = {:.3f}\n".format(name, value))
     
     file1.write("***************\n")
-    y_pred, y_true, idx = predict_tml(model, val_data)
+    y_pred, y_true, idx = predict_tml(model, val_data, descriptors)
     metrics, metrics_names = calculate_metrics(y_true, y_pred, task = 'r')
 
     file1.write("Validation set\n")
@@ -504,7 +530,7 @@ def tml_report(log_dir,
     
     file1.write("***************\n")
 
-    y_pred, y_true, idx = predict_tml(model=model, data=test_data)
+    y_pred, y_true, idx = predict_tml(model=model, data=test_data, descriptors = descriptors)
 
     pd.DataFrame({'real_ddG': y_true, 'predicted_ddG': y_pred, 'index': idx}).to_csv("{}/predictions_test_set.csv".format(log_dir))
 
@@ -513,18 +539,20 @@ def tml_report(log_dir,
 
     metrics, metrics_names = calculate_metrics(face_true, face_pred, task = 'c')
 
+    correct_side_add = face_pred == face_true
+
     file1.write("Test set\n")
     file1.write("Set size = {}\n".format(N_test))
 
     for name, value in zip(metrics_names, metrics):
         file1.write("{} = {:.3f}\n".format(name, value))
     
-    error = abs(y_pred-y_true)
-    y_true = y_true[error<14]
-    y_pred = y_pred[error<14]
-    idx = idx[error<14]
-        
-    file1.write("Test Set Total Correct Face of Addition Predictions = {}\n".format(len(y_true)))
+    #error = abs(y_pred-y_true)
+    #y_true = y_true[correct_side_add]
+    #y_pred = y_pred[correct_side_add]
+    #idx = idx[correct_side_add]
+
+    file1.write("Test Set Total Correct Face of Addition Predictions = {}\n".format(np.sum(correct_side_add)))
 
     metrics, metrics_names = calculate_metrics(y_true, y_pred, task = 'r')
 
@@ -552,9 +580,9 @@ def tml_report(log_dir,
             outliers_error_list.append(error_test[sample])
             index_list.append(sample)
             if counter < 10:
-                file1.write("0{}) {}    Error: {:.2f} %    (index={})\n".format(counter, idx[sample], error_test[sample], sample))
+                file1.write("0{}) {}    Error: {:.2f} kJ/mol    (index={})\n".format(counter, idx[sample], error_test[sample], sample))
             else:
-                file1.write("{}) {}    Error: {:.2f} %s    (index={})\n".format(counter, idx[sample], error_test[sample], sample))
+                file1.write("{}) {}    Error: {:.2f} kJ/mol    (index={})\n".format(counter, idx[sample], error_test[sample], sample))
 
     file1.close()
 
