@@ -222,7 +222,8 @@ def plot_results(exp_dir, opt):
             
             gnn_dir = os.path.join(experiments_gnn, f'Fold_{outer}_test_set', f'Fold_{real_inner}_val_set')
 
-            df_gnn = pd.read_csv(gnn_dir+'/predictions_test_set.csv')
+            df_gnn = pd.read_csv(gnn_dir+'/predictions_test_set.csv', index_col=0)
+            #ic(df_gnn.columns)
             df_gnn['Test_Fold'] = outer
             df_gnn['Val_Fold'] = real_inner
             df_gnn['Method'] = 'GNN'
@@ -231,7 +232,7 @@ def plot_results(exp_dir, opt):
 
             tml_dir = os.path.join(experiments_tml, f'Fold_{outer}_test_set', f'Fold_{real_inner}_val_set')
 
-            df_tml = pd.read_csv(tml_dir+'/predictions_test_set.csv')
+            df_tml = pd.read_csv(tml_dir+'/predictions_test_set.csv', index_col=0)
             df_tml['Test_Fold'] = outer
             df_tml['Val_Fold'] = real_inner
             df_tml['Method'] = opt.tml_algorithm
