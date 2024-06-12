@@ -74,8 +74,8 @@ def train_network_nested_cv() -> None:
                     val_loss = eval_network(model, val_loader, device)
                     test_loss = eval_network(model, test_loader, device)  
 
-                    print('{}/{}-Epoch {:03d} | Train loss: {:.3f} % | Validation loss: {:.3f} % | '             
-                        'Test loss: {:.3f} %'.format(counter, TOT_RUNS, epoch, train_loss, val_loss, test_loss))
+                    print('{}/{}-Epoch {:03d} | Train loss: {:.3f} kJ/mol | Validation loss: {:.3f} kJ/mol | '             
+                        'Test loss: {:.3f} kJ/mol'.format(counter, TOT_RUNS, epoch, train_loss, val_loss, test_loss))
                     
                     # Model performance is evaluated every 5 epochs
                     if epoch % 5 == 0:
@@ -157,10 +157,10 @@ def train_network_nested_cv() -> None:
 opt = BaseOptions().parse()
 
 if __name__ == "__main__":
-    #train_network_nested_cv()
+    train_network_nested_cv()
     #train_tml_model_nested_cv(opt=opt, parent_dir=os.getcwd())
     #predict_final_test_network(parent_dir=os.getcwd(), opt=opt)
 
-    print('Plotting results...')
-    plot_results(opt=opt, exp_dir=os.path.join(os.getcwd(), opt.log_dir_results, 'learning_set'))
-    plot_results(opt=opt, exp_dir=os.path.join(os.getcwd(), opt.log_dir_results, 'final_test'))
+    #print('Plotting results...')
+    #plot_results(opt=opt, exp_dir=os.path.join(os.getcwd(), opt.log_dir_results, 'learning_set'))
+    #plot_results(opt=opt, exp_dir=os.path.join(os.getcwd(), opt.log_dir_results, 'final_test'))
