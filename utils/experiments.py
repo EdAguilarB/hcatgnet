@@ -38,9 +38,9 @@ def train_tml_model_nested_cv(opt: argparse.Namespace, parent_dir:str) -> None:
     filename = opt.filename[:-4] + '_folds' + opt.filename[-4:]
     data = pd.read_csv(f'{opt.root}/raw/{filename}')
     data = data[['LVR1', 'LVR2', 'LVR3', 'LVR4', 'LVR5', 'LVR6', 'LVR7', 'VB', 'ER1', 'ER2', 'ER3', 'ER4', 'ER5', 'ER6',
-               'ER7', 'SStoutR1', 'SStoutR2', 'SStoutR3', 'SStoutR4', 'ddG', 'fold', 'index']]
+               'ER7', 'SStoutR1', 'SStoutR2', 'SStoutR3', 'SStoutR4', 'temp', 'ddG', 'fold', 'index']]
     descriptors = ['LVR1', 'LVR2', 'LVR3', 'LVR4', 'LVR5', 'LVR6', 'LVR7', 'VB', 'ER1', 'ER2', 'ER3', 'ER4', 'ER5', 'ER6',
-               'ER7', 'SStoutR1', 'SStoutR2', 'SStoutR3', 'SStoutR4']
+               'ER7', 'SStoutR1', 'SStoutR2', 'SStoutR3', 'SStoutR4', 'temp']
     
     # Nested cross validation
     ncv_iterator = split_data(data)
@@ -53,8 +53,8 @@ def train_tml_model_nested_cv(opt: argparse.Namespace, parent_dir:str) -> None:
 
     # Hyperparameter optimisation
     print("Hyperparameter optimisation starting...")
-    X, y, _ = load_variables(f'{opt.root}/raw/learning_folds.csv')
-    best_params = hyperparam_tune(X, y, choose_model(best_params=None, algorithm = opt.tml_algorithm), 123456789)
+    X, y, _ = load_variables(f'{opt.root}/raw/learning_folds.csv', descriptors=descriptors+['ddG'])
+    best_params = hyperparam_tune(X, y, choose_model(best_params=None, algorithm = opt.tml_algorithm), opt.global_seed)
     print('Hyperparameter optimisation has finalised')
     print("Training starting...")
     print("********************************")
@@ -95,6 +95,7 @@ def train_tml_model_nested_cv(opt: argparse.Namespace, parent_dir:str) -> None:
                        outer = outer,
                        inner = real_inner,
                        model = model,
+                       descriptors=descriptors
                        )
             
             # Reset the variables of the training
@@ -124,6 +125,9 @@ def predict_final_test_network(parent_dir:str, opt: argparse.Namespace) -> None:
     # Load the final test set
     final_test =rhcaa_diene(opt, opt.filename_final_test, opt.mol_cols, opt.root_final_test, include_fold=False)
     test_loader = DataLoader(final_test, shuffle=False)
+
+    descriptors = ['LVR1', 'LVR2', 'LVR3', 'LVR4', 'LVR5', 'LVR6', 'LVR7', 'VB', 'ER1', 'ER2', 'ER3', 'ER4', 'ER5', 'ER6',
+               'ER7', 'SStoutR1', 'SStoutR2', 'SStoutR3', 'SStoutR4', 'temp']
 
     # Load the data for tml
     test_set = pd.read_csv(f'{opt.root_final_test}/raw/{opt.filename_final_test}')
@@ -167,7 +171,8 @@ def predict_final_test_network(parent_dir:str, opt: argparse.Namespace) -> None:
                        inner=real_inner,
                        model=model,
                        data=(train_data,val_data,test_set),
-                       save_all=False,)
+                       save_all=False,
+                       descriptors=descriptors)
             
                         
         network_outer_report(log_dir=f"{experiments_gnn}/Fold_{outer}_test_set/", 
