@@ -83,7 +83,6 @@ class rhcaa_diene(reaction_graph):
                         ligand = standardize_smiles(reaction['Ligand']),
                         substrate = standardize_smiles(reaction['substrate']),
                         boron = standardize_smiles(reaction['boron reagent']),
-                        ligand_id = reaction['ligand'],
                         idx = index,
                         fold = fold
                         ) 
