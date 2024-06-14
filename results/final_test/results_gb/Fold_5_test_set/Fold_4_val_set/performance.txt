@@ -1,7 +1,7 @@
-12-Jun-2024, 16:23:58
+13-Jun-2024, 10:50:14
 ---------------------------------------------------------
 Traditional ML algorithm Performance
-Dataset Size = 650
+Dataset Size = 653
 ***************
 Training set
 Set size = 534
@@ -22,17 +22,17 @@ Mean Absolute Percentage Error = 0.275
 Error Standard Deviation = 3.591
 ***************
 Test set
-Set size = 49
-Accuracy = 0.857
-Precision = 0.828
-Recall = 0.923
-F1 = 0.873
-Test Set Total Correct Face of Addition Predictions = 42
-R2 = 0.479
-MAE = 6.022
-RMSE = 8.100
-Mean Bias Error = -0.010
-Mean Absolute Percentage Error = 0.794
-Error Standard Deviation = 8.100
+Set size = 52
+Accuracy = 0.827
+Precision = 0.806
+Recall = 0.893
+F1 = 0.847
+Test Set Total Correct Face of Addition Predictions = 43
+R2 = 0.456
+MAE = 6.074
+RMSE = 8.044
+Mean Bias Error = 0.054
+Mean Absolute Percentage Error = 0.989
+Error Standard Deviation = 8.043
 ---------------------------------------------------------
 OUTLIERS (TEST SET)

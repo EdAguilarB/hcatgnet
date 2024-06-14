@@ -323,7 +323,7 @@ def plot_mean_predictions(df):
     sns.set(style="whitegrid")
 
     # Scatter plot with hue for different methods
-    scatter = sns.scatterplot(x='real_ddG', y='mean_predicted_ddG', data=df, s=100, edgecolor='k', hue='Method', palette='Set2')
+    scatter = sns.scatterplot(x='real_ddG', y='mean_predicted_ddG', data=df, s=100, edgecolor='k', hue='Method', palette='deep')
 
     # Add regression lines for each method and calculate metrics
     metrics_text = []

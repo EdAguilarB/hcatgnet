@@ -223,7 +223,7 @@ def plot_results(exp_dir, opt):
             gnn_dir = os.path.join(experiments_gnn, f'Fold_{outer}_test_set', f'Fold_{real_inner}_val_set')
 
             df_gnn = pd.read_csv(gnn_dir+'/predictions_test_set.csv', index_col=0)
-            #ic(df_gnn.columns)
+
             df_gnn['Test_Fold'] = outer
             df_gnn['Val_Fold'] = real_inner
             df_gnn['Method'] = 'GNN'
