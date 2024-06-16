@@ -12,7 +12,7 @@ import plotly.graph_objects as go
 import plotly.express as px
 
 
-
+from icecream import ic
 
 ######################################
 ######################################
@@ -23,19 +23,24 @@ import plotly.express as px
 def explain_dataset(dataset: List, 
                    explainer,):
     
+    #Creates a loader object from the dataset
     loader = DataLoader(dataset=dataset)
 
+    # list to store the masks
     masks_ligand = []
     masks_substrate = []
     masks_boron = []
     all_masks = []
 
+    #Iterate over the graphs in the loader
     for graph in tqdm(loader):
 
+        # Get the number of atoms in each molecule
         na_ligand = AddHs(Chem.MolFromSmiles(graph.ligand[0])).GetNumAtoms()
         na_substrate = AddHs(Chem.MolFromSmiles(graph.substrate[0])).GetNumAtoms()
         na_boron = AddHs(Chem.MolFromSmiles(graph.boron[0])).GetNumAtoms()
 
+        # Define the index of the first and last atom of each molecule
         ia_ligand = 0
         fa_ligand = na_ligand
 
@@ -48,15 +53,22 @@ def explain_dataset(dataset: List,
         ia = 0
         fa = na_ligand+na_substrate+na_boron
 
-        explanation = explainer(x = graph.x, edge_index=graph.edge_index,  batch_index=graph.batch)
+        # Run the explanation function over the reaction graph
+        explanation = explainer(x = graph.x, 
+                                edge_index=graph.edge_index,  
+                                batch_index=graph.batch)
+        
+        # Get the masks for each node within the molecule
         masks = explanation.node_mask
 
+        # Append the masks for each molecule to the list
         masks_ligand.append(masks[ia_ligand:fa_ligand])
         masks_substrate.append(masks[ia_substrate: fa_substrate])
         masks_boron.append(masks[ia_boron: fa_boron])
 
         all_masks.append(masks[ia:fa])
 
+    # Concatenate the masks for each molecule
     masks_ligand = torch.cat(masks_ligand, dim = 0)
     masks_substrate = torch.cat(masks_substrate, dim = 0)
     masks_boron = torch.cat(masks_boron, dim = 0)
@@ -72,14 +84,25 @@ def visualize_score_features(
     analysis: Optional[str] = None, 
     mol: Optional[str] = None,
 ):
+    
+    '''
+    Function to visualize the importance of the node features
+    in the graph. The function can be used to visualize the
+    importance of the node features in the ligand, substrate,
+    boron or the entire graph. The function will resturn a plot
+    showing the importance of the node features given the
+    masks calculated by any method
+    '''
 
     atom_identity = 10
     degree = 4
     hyb = 4
     aromatic = 1
     ring = 1
-    chiral = 3
-    conf = 1
+    chiral = 2
+    conf = 2
+    temp = 1
+
 
     if mol:
 
@@ -105,6 +128,7 @@ def visualize_score_features(
         importances.append(score[ia:fa, atom_identity+degree+hyb+aromatic:atom_identity+degree+hyb+aromatic+ring])
         importances.append(score[ia:fa, atom_identity+degree+hyb+aromatic+ring:atom_identity+degree+hyb+aromatic+ring+chiral])
         importances.append(score[ia:fa, atom_identity+degree+hyb+aromatic+ring+chiral:atom_identity+degree+hyb+aromatic+ring+chiral+conf])
+        importances.append(score[ia:fa, atom_identity+degree+hyb+aromatic+ring+chiral+conf:atom_identity+degree+hyb+aromatic+ring+chiral+conf+temp])
     
     else:
 
@@ -116,6 +140,7 @@ def visualize_score_features(
         importances.append(score[:, atom_identity+degree+hyb+aromatic:atom_identity+degree+hyb+aromatic+ring])
         importances.append(score[:, atom_identity+degree+hyb+aromatic+ring:atom_identity+degree+hyb+aromatic+ring+chiral])
         importances.append(score[:, atom_identity+degree+hyb+aromatic+ring+chiral:atom_identity+degree+hyb+aromatic+ring+chiral+conf])
+        importances.append(score[:, atom_identity+degree+hyb+aromatic+ring+chiral+conf:atom_identity+degree+hyb+aromatic+ring+chiral+conf+temp])
 
     if analysis:
         if analysis == 'atom_identity':
@@ -157,14 +182,15 @@ def visualize_score_features(
         elif analysis == 'conf':
             importance = importances[6]
             importance = importance.sum(dim=0).cpu().numpy()
-            labels = ['config']
+            labels = [2, 1]
             title = 'Ligand Configuration Importance'
 
     else:
         importances = [importance.sum().cpu().numpy() for importance in importances]
         importances = [np.array([x.item()]) for x in importances]
         importance = np.concatenate(importances)
-        labels = ['Atom Identity', 'Atom Degree', 'Atom Hybridization', 'Atom Aromaticity', 'Atom InRing', 'Atom Chirality', 'System Configuration']
+        labels = ['Atom Identity', 'Atom Degree', 'Atom Hybridization', 'Atom Aromaticity', 
+                  'Atom InRing', 'Atom Chirality', 'Ligand Configuration', 'Reaction Temperature']
         title = 'Global Importance of Node Features'
 
     df = pd.DataFrame({'score': importance, 'labels': labels}, index=labels)
