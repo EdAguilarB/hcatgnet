@@ -395,7 +395,8 @@ def explain_model(exp_path:str, opt: argparse.Namespace) -> None:
     loader = DataLoader(test_loader.dataset)
 
 
-    ligand_masks, substrate_masks, boron_masks, all_masks  = explain_dataset(test_loader.dataset, explainer)
+    ligand_masks, substrate_masks, boron_masks, all_masks  = explain_dataset(test_loader.dataset, 
+                                                                             explainer)
 
     ligands = visualize_score_features(score = ligand_masks)
     ligands = ligands.loc[ligands['score'] != 0]
