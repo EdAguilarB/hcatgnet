@@ -53,7 +53,7 @@ def train_tml_model_nested_cv(opt: argparse.Namespace, parent_dir:str) -> None:
 
     # Hyperparameter optimisation
     print("Hyperparameter optimisation starting...")
-    X, y, _ = load_variables(f'{opt.root}/raw/learning_folds.csv', descriptors=descriptors+['ddG'])
+    X, y, _ = load_variables(f'{opt.root}/raw/{opt.filename}', descriptors=descriptors+['ddG'])
     best_params = hyperparam_tune(X, y, choose_model(best_params=None, algorithm = opt.tml_algorithm), opt.global_seed)
     print('Hyperparameter optimisation has finalised')
     print("Training starting...")
