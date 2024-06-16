@@ -295,7 +295,7 @@ def create_parity_plot(data: pd.DataFrame, save_path:str, tml_algorithm:str):
 
 
 
-def plot_importances(df, save_path: str):
+def plot_importances(df, save_path: str=None):
     plt.figure(figsize=(10, 6))
 
     ax = barplot(df, x="score", y="labels", estimator="sum", errorbar=None)
@@ -305,8 +305,9 @@ def plot_importances(df, save_path: str):
     plt.xlabel('Feature Importance Score', fontsize=16)
     plt.ylabel('Feature', fontsize=16)
 
-    # Save the figure before displaying it
-    plt.savefig(os.path.join(save_path, 'node_feature_importance_plot'), dpi=300, bbox_inches='tight')
+    if save_path:
+        # Save the figure before displaying it
+        plt.savefig(os.path.join(save_path, 'node_feature_importance_plot'), dpi=300, bbox_inches='tight')
 
     # Display the plot
     plt.show()
