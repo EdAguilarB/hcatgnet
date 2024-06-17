@@ -179,7 +179,7 @@ class BaseOptions:
         self.parser.add_argument(
             '--explain_reactions',
             type=list,
-            default=[86, 429, 93, 95, 99, 101],
+            default=[82, 416, 89, 91, 95, 97],
             help='List of index of reactions to explain',
         )
 
