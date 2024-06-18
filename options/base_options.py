@@ -46,7 +46,25 @@ class BaseOptions:
         
 
         self.parser.add_argument(
-            '--explain_GNN', 
+            '--shapley_analysis', 
+            type=self.str2bool, 
+            nargs='?', 
+            const=True, 
+            default=True, 
+            help='Whether to explain the GNN or not'
+            )
+
+        self.parser.add_argument(
+            '--denoise_graph', 
+            type=self.str2bool, 
+            nargs='?', 
+            const=True, 
+            default=True, 
+            help='Whether to explain the GNN or not'
+            )
+
+        self.parser.add_argument(
+            '--GNNExplainer', 
             type=self.str2bool, 
             nargs='?', 
             const=True, 
@@ -242,7 +260,29 @@ class BaseOptions:
             default='gb',
             help='Traditional ML algorithm to use. Allowed values: lr for linear regression, gb for gradient boosting, or rf for random forest.',
             )
-        
+
+
+        self.parser.add_argument(
+            '--denoise_reactions',
+            type=int,
+            default=1,
+            help='List of index of reactions to explain',
+        )
+
+        self.parser.add_argument(
+            '--denoise_based_on',
+            type=str,
+            default=None,
+            help='Denoise the graph based on a given node features. Allowed values: None, atom_identity, degree, hyb, aromatic, ring, chiral, conf',
+        )
+
+        self.parser.add_argument(
+            '--denoise_mol',
+            type=str,
+            default='ligand',
+            help='Denoise the given molecule of the reaction. Allowed values: ligand, substrate, boron',
+        )
+
         self.parser.add_argument(
             '--explain_reactions',
             type=list,

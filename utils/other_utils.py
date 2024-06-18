@@ -76,6 +76,66 @@ def explain_dataset(dataset: List,
 
     return masks_ligand, masks_substrate, masks_boron, all_masks
 
+def plot_denoised_mols(mask,
+                       graph,
+                       mol: str,
+                       analysis:str=None,):
+    
+    atom_identity = 10
+    degree = 4
+    hyb = 4
+    aromatic = 1
+    ring = 1
+    chiral = 2
+    conf = 2
+
+    importances = []
+    importances.append(mask[:, 0:atom_identity])
+    importances.append(mask[:, atom_identity:atom_identity+degree])
+    importances.append(mask[:, atom_identity+degree:atom_identity+degree+hyb])
+    importances.append(mask[:, atom_identity+degree+hyb:atom_identity+degree+hyb+aromatic])
+    importances.append(mask[:, atom_identity+degree+hyb+aromatic:atom_identity+degree+hyb+aromatic+ring])
+    importances.append(mask[:, atom_identity+degree+hyb+aromatic+ring:atom_identity+degree+hyb+aromatic+ring+chiral])
+    importances.append(mask[:, atom_identity+degree+hyb+aromatic+ring+chiral:atom_identity+degree+hyb+aromatic+ring+chiral+conf])
+
+    if analysis:
+        if analysis == 'atom_identity':
+            importance = importances[0]
+            importance = importance.sum(dim=1).cpu().numpy()
+
+        elif analysis == 'degree':
+            importance = importances[1]
+            importance = importance.sum(dim=1).cpu().numpy()
+
+        elif analysis == 'hyb':
+            importance = importances[2]
+            importance = importance.sum(dim=1).cpu().numpy()
+
+        elif analysis == 'aromatic':
+            importance = importances[3]
+            importance = importance.sum(dim=1).cpu().numpy()
+
+        elif analysis == 'ring':
+            importance = importances[4]
+            importance = importance.sum(dim=1).cpu().numpy()
+
+        elif analysis == 'chiral':
+            importance = importances[5]
+            importance = importance.sum(dim=1).cpu().numpy()
+
+        elif analysis == 'conf':
+            importance = importances[6]
+            importance = importance.sum(dim=1).cpu().numpy()
+
+    else:
+        importance = mask.sum(dim=1).cpu().numpy()
+        ic(importance.shape)
+        ic(importance)
+
+    if mol == 'ligand':
+        na_ligand = AddHs(Chem.MolFromSmiles(graph.ligand[0])).GetNumAtoms()
+
+
 
 
 def visualize_score_features(
