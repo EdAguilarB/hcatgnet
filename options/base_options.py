@@ -9,6 +9,52 @@ class BaseOptions:
     def initialize(self):
 
         self.parser.add_argument(
+            '--train_GNN', 
+            type=self.str2bool,
+            nargs='?', 
+            const=True, 
+            default=True, 
+            help='Whether to train the GNN or not'
+            )
+        
+        self.parser.add_argument(
+            '--train_tml', 
+            type=self.str2bool, 
+            nargs='?', 
+            const=True, 
+            default=True, 
+            help='Whether to train the TML or not'
+            )
+        
+        self.parser.add_argument(
+            '--compare_models', 
+            type=self.str2bool, 
+            nargs='?', 
+            const=True, 
+            default=True, 
+            help='Whether to compare GNN and TML or not'
+            )
+        
+        self.parser.add_argument(
+            '--predict_unseen', 
+            type=self.str2bool, 
+            nargs='?', 
+            const=True, 
+            default=True, 
+            help='Whether to predict the unseen data or not'
+            )
+        
+
+        self.parser.add_argument(
+            '--explain_GNN', 
+            type=self.str2bool, 
+            nargs='?', 
+            const=True, 
+            default=True, 
+            help='Whether to explain the GNN or not'
+            )
+        
+        self.parser.add_argument(
             '--experiment_name',
             type=str,
             default='experiment',
@@ -41,6 +87,27 @@ class BaseOptions:
             type=str, 
             default='data/datasets/rhcaa_final_test',
             help='path to the folder containing the csv files',
+            )
+        
+        self.parser.add_argument(
+            '--filename_predict',
+            type=str,
+            default='final_test.csv',
+            help='name of the csv file for the final test',
+            )
+        
+        self.parser.add_argument(
+            '--root_predict', 
+            type=str, 
+            default='data/datasets/rhcaa_final_test',
+            help='path to the folder containing the csv files',
+            )
+        
+        self.parser.add_argument(
+            '--predict_model',
+            type=str,
+            default='learning_set',
+            help='Model to use for prediction. Options: learning_set or all_data',
             )
         
         self.parser.add_argument(
@@ -206,3 +273,14 @@ class BaseOptions:
         self._opt = self.parser.parse_args()
 
         return self._opt
+    
+    @staticmethod
+    def str2bool(value):
+        if isinstance(value, bool):
+            return value
+        if value.lower() in ('yes', 'true', 't', 'y', '1'):
+            return True
+        elif value.lower() in ('no', 'false', 'f', 'n', '0'):
+            return False
+        else:
+            raise argparse.ArgumentTypeError('Boolean value expected.')
