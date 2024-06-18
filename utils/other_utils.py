@@ -140,7 +140,7 @@ def visualize_score_features(
         importances.append(score[:, atom_identity+degree+hyb+aromatic:atom_identity+degree+hyb+aromatic+ring])
         importances.append(score[:, atom_identity+degree+hyb+aromatic+ring:atom_identity+degree+hyb+aromatic+ring+chiral])
         importances.append(score[:, atom_identity+degree+hyb+aromatic+ring+chiral:atom_identity+degree+hyb+aromatic+ring+chiral+conf])
-        importances.append(score[:, atom_identity+degree+hyb+aromatic+ring+chiral+conf:atom_identity+degree+hyb+aromatic+ring+chiral+conf+temp])
+        #importances.append(score[:, atom_identity+degree+hyb+aromatic+ring+chiral+conf:atom_identity+degree+hyb+aromatic+ring+chiral+conf+temp])
 
     if analysis:
         if analysis == 'atom_identity':
@@ -190,7 +190,7 @@ def visualize_score_features(
         importances = [np.array([x.item()]) for x in importances]
         importance = np.concatenate(importances)
         labels = ['Atom Identity', 'Atom Degree', 'Atom Hybridization', 'Atom Aromaticity', 
-                  'Atom InRing', 'Atom Chirality', 'Ligand Configuration', 'Reaction Temperature']
+                  'Atom InRing', 'Atom Chirality', 'Ligand Configuration']
         title = 'Global Importance of Node Features'
 
     df = pd.DataFrame({'score': importance, 'labels': labels}, index=labels)
