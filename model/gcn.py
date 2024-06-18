@@ -42,8 +42,7 @@ class GCN(BaseNetwork):
             graph_embedding = reduced_dim
 
         #Final readout layer
-        self.readout.append(nn.Sequential(nn.Linear(graph_embedding, self._n_classes),
-                                          nn.Sigmoid()))
+        self.readout.append(nn.Linear(graph_embedding, self._n_classes))
         
         
         self._make_loss(opt.problem_type)
@@ -52,7 +51,7 @@ class GCN(BaseNetwork):
         
 
 
-    def forward(self, reaction_graph):
+    def forward(self, reaction_graph, return_graph_embedding=False):
 
         x, edge_index, batch, edge_weight = reaction_graph.x, reaction_graph.edge_index, reaction_graph.batch, None
 
@@ -66,10 +65,15 @@ class GCN(BaseNetwork):
         x = torch.cat([gmp(x, batch), 
                             gap(x, batch)], dim=1)
         
+        graph_emb = x
+        
         for i in range(self.readout_layers):
             x = self.readout[i](x)
 
-        return x*100
+        if return_graph_embedding == True:    
+            return x, graph_emb
+        else:
+            return x
 
 
 class GCN_explain(BaseNetwork):
@@ -108,8 +112,7 @@ class GCN_explain(BaseNetwork):
             graph_embedding = reduced_dim
 
         #Final readout layer
-        self.readout.append(nn.Sequential(nn.Linear(graph_embedding, self._n_classes),
-                                          nn.Sigmoid()))
+        self.readout.append(nn.Linear(graph_embedding, self._n_classes))
         
         
         self._make_loss(opt.problem_type)
@@ -134,4 +137,4 @@ class GCN_explain(BaseNetwork):
         for i in range(self.readout_layers):
             x = self.readout[i](x)
 
-        return x*100
+        return x

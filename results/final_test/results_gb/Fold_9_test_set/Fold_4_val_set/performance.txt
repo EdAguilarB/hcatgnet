@@ -1,50 +1,40 @@
-07-Mar-2024, 19:03:46
+13-Jun-2024, 10:51:49
 ---------------------------------------------------------
 Traditional ML algorithm Performance
-Dataset Size = 652
+Dataset Size = 654
 ***************
 Training set
-Set size = 549
-R2 = 0.986
-MAE = 2.757
-RMSE = 5.278
-Mean Bias Error = -0.000
-Mean Absolute Percentage Error = 0.816
-Error Standard Deviation = 5.278
+Set size = 535
+R2 = 1.000
+MAE = 0.102
+RMSE = 0.185
+Mean Bias Error = 0.000
+Mean Absolute Percentage Error = 0.013
+Error Standard Deviation = 0.185
 ***************
 Validation set
-Set size = 69
-R2 = 0.856
-MAE = 8.183
-RMSE = 17.147
-Mean Bias Error = 0.849
-Mean Absolute Percentage Error = 1.375
-Error Standard Deviation = 17.126
+Set size = 67
+R2 = 0.938
+MAE = 1.911
+RMSE = 2.463
+Mean Bias Error = 0.462
+Mean Absolute Percentage Error = 0.224
+Error Standard Deviation = 2.419
 ***************
 Test set
-Set size = 34
-Accuracy = 0.412
-Precision = 0.452
-Recall = 0.824
-F1 = 0.583
-Test Set Total Correct Face of Addition Predictions = 14
-R2 = -201.471
-MAE = 10.021
-RMSE = 10.277
-Mean Bias Error = -10.021
-Mean Absolute Percentage Error = 0.101
-Error Standard Deviation = 2.280
+Set size = 52
+Accuracy = 0.885
+Precision = 0.893
+Recall = 0.893
+F1 = 0.893
+Test Set Total Correct Face of Addition Predictions = 46
+R2 = 0.695
+MAE = 4.549
+RMSE = 6.025
+Mean Bias Error = 0.170
+Mean Absolute Percentage Error = 1.026
+Error Standard Deviation = 6.023
 ---------------------------------------------------------
 OUTLIERS (TEST SET)
-01) 9    Error: -10.47 %    (index=0)
-02) 10    Error: -12.77 %    (index=1)
-03) 11    Error: -12.77 %    (index=2)
-04) 12    Error: -11.87 %    (index=3)
-05) 13    Error: -8.83 %    (index=4)
-06) 14    Error: -11.28 %    (index=5)
-07) 15    Error: -12.09 %    (index=6)
-08) 16    Error: -9.86 %    (index=7)
-09) 17    Error: -8.33 %    (index=8)
-10) 27    Error: -13.20 %s    (index=10)
-11) 29    Error: -8.27 %s    (index=11)
-12) 31    Error: -7.32 %s    (index=12)
+01) 22    Error: 18.10 kJ/mol    (index=22)
+02) 23    Error: -19.45 kJ/mol    (index=23)

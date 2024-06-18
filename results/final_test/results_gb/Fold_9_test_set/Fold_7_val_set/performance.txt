@@ -1,38 +1,40 @@
-07-Mar-2024, 19:03:47
+13-Jun-2024, 10:51:57
 ---------------------------------------------------------
 Traditional ML algorithm Performance
-Dataset Size = 652
+Dataset Size = 654
 ***************
 Training set
-Set size = 550
-R2 = 0.991
-MAE = 2.454
-RMSE = 4.321
+Set size = 535
+R2 = 1.000
+MAE = 0.120
+RMSE = 0.207
 Mean Bias Error = -0.000
-Mean Absolute Percentage Error = 0.638
-Error Standard Deviation = 4.321
+Mean Absolute Percentage Error = 0.015
+Error Standard Deviation = 0.207
 ***************
 Validation set
-Set size = 68
-R2 = 0.945
-MAE = 5.385
-RMSE = 10.466
-Mean Bias Error = 2.521
-Mean Absolute Percentage Error = 0.954
-Error Standard Deviation = 10.158
+Set size = 67
+R2 = 0.891
+MAE = 1.900
+RMSE = 3.039
+Mean Bias Error = 0.312
+Mean Absolute Percentage Error = 0.274
+Error Standard Deviation = 3.023
 ***************
 Test set
-Set size = 34
-Accuracy = 0.824
-Precision = 0.824
-Recall = 0.824
-F1 = 0.824
-Test Set Total Correct Face of Addition Predictions = 28
-R2 = 0.909
-MAE = 12.796
-RMSE = 14.776
-Mean Bias Error = 1.168
-Mean Absolute Percentage Error = 8.323
-Error Standard Deviation = 14.730
+Set size = 52
+Accuracy = 0.942
+Precision = 0.963
+Recall = 0.929
+F1 = 0.945
+Test Set Total Correct Face of Addition Predictions = 49
+R2 = 0.677
+MAE = 4.749
+RMSE = 6.192
+Mean Bias Error = -0.273
+Mean Absolute Percentage Error = 0.999
+Error Standard Deviation = 6.186
 ---------------------------------------------------------
 OUTLIERS (TEST SET)
+01) 22    Error: 19.74 kJ/mol    (index=22)
+02) 23    Error: -20.27 kJ/mol    (index=23)

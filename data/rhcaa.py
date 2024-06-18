@@ -11,6 +11,8 @@ import sys
 from data.datasets import reaction_graph
 from sklearn.model_selection import StratifiedKFold
 
+from icecream import ic
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
@@ -25,8 +27,8 @@ class rhcaa_diene(reaction_graph):
                 file_folds = filename[:-4] + '_folds' + filename[-4:]
                 pd.read_csv(os.path.join(root, 'raw', f'{file_folds}'))
             except:
-                self.split_data(root, filename, opt.folds)
-                filename = filename[:-4] + '_folds' + filename[-4:]
+                self.split_data(root, filename, opt.folds, opt.global_seed)
+            filename = filename[:-4] + '_folds' + filename[-4:]
 
         super().__init__(opt = opt, filename = filename, mol_cols = molcols, root=root)
 
@@ -40,6 +42,8 @@ class rhcaa_diene(reaction_graph):
 
             node_feats_reaction = None
 
+            temp = reaction['temp']/100
+
             for reactant in self.mol_cols:  
 
                 #create a molecule object from the smiles string
@@ -47,7 +51,7 @@ class rhcaa_diene(reaction_graph):
 
                 mol = Chem.rdmolops.AddHs(mol)
 
-                node_feats = self._get_node_feats(mol, reaction['Confg'])
+                node_feats = self._get_node_feats(mol, reaction['Confg'], reactant, temp)
 
                 edge_attr, edge_index = self._get_edge_features(mol)
 
@@ -62,7 +66,9 @@ class rhcaa_diene(reaction_graph):
                     edge_index += max(edge_index_reaction[0]) + 1
                     edge_index_reaction = torch.cat([edge_index_reaction, edge_index], axis=1)
 
-            label = torch.tensor(reaction['%top']).reshape(1)
+            y = torch.tensor(reaction['ddG']).reshape(1)
+            top = torch.tensor(reaction['%top']).reshape(1)
+
 
             if self._include_fold:
                 fold = reaction['fold']
@@ -72,12 +78,11 @@ class rhcaa_diene(reaction_graph):
             data = Data(x=node_feats_reaction, 
                         edge_index=edge_index_reaction, 
                         edge_attr=edge_attr_reaction, 
-                        y=label,
+                        y=y,
+                        top = top,
                         ligand = standardize_smiles(reaction['Ligand']),
                         substrate = standardize_smiles(reaction['substrate']),
                         boron = standardize_smiles(reaction['boron reagent']),
-                        ligand_num = reaction['ligand_num'],
-                        ligand_id = reaction['ligand'],
                         idx = index,
                         fold = fold
                         ) 
@@ -85,16 +90,12 @@ class rhcaa_diene(reaction_graph):
             torch.save(data, 
                        os.path.join(self.processed_dir, 
                                     f'reaction_{index}.pt'))
-
-            if index % 100 == 0:
-                print('Reaction {} processed and saved as reaction_{}.pt'.format(index, index))
-            
-
     
 
-    def _get_node_feats(self, mol, mol_confg):
+    def _get_node_feats(self, mol, mol_confg, reactant, temperature):
 
         all_node_feats = []
+        CIPtuples = dict(Chem.FindMolChiralCenters(mol, includeUnassigned=False))
 
         for atom in mol.GetAtoms():
             node_feats = []
@@ -109,9 +110,14 @@ class rhcaa_diene(reaction_graph):
             # Feature 5: In Ring
             node_feats += [atom.IsInRing()]
             # Feature 6: Chirality
-            node_feats += self._one_h_e(atom.GetChiralTag(),[0,1,2])
-            #feature 7: mol configuration
-            node_feats.append(mol_confg)
+            node_feats += self._one_h_e(self._get_atom_chirality(CIPtuples, atom.GetIdx()), ['R', 'S'], 'No_Stereo_Center')
+            #feature 7: ligand configuration
+            if reactant == 'Ligand':
+                node_feats += self._one_h_e(mol_confg, [2, 1], 0)
+            else:
+                node_feats += [0,0]
+            # feature 8: reaction temperature
+            node_feats += [temperature]
 
             # Append node features to matrix
             all_node_feats.append(node_feats)
@@ -124,13 +130,6 @@ class rhcaa_diene(reaction_graph):
         label = np.asarray([label])
         return torch.tensor(label, dtype=torch.float)
     
-    def _get_cat(self, label):
-        label = np.asarray(label)
-        if label <= 50:
-            cat = [0]
-        else:
-            cat = [1]
-        return torch.tensor(cat, dtype=torch.int64)
     
     def _get_edge_features(self, mol):
 
@@ -199,12 +198,12 @@ class rhcaa_diene(reaction_graph):
         return df
     
 
-    def split_data(self, root, filename, n_folds):
+    def split_data(self, root, filename, n_folds, random_seed):
 
         dataset = pd.read_csv(os.path.join(root, 'raw', f'{filename}'))
         dataset['category'] = dataset['%top'].apply(lambda m: 0 if m < 50 else 1)
 
-        folds = StratifiedKFold(n_splits = n_folds, shuffle = True, random_state=23)
+        folds = StratifiedKFold(n_splits = n_folds, shuffle = True, random_state=random_seed)
 
         test_idx = []
 
