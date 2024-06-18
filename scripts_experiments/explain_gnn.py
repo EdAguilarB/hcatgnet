@@ -11,7 +11,7 @@ from utils.plot_utils import  plot_importances
 from model.gcn import GCN_explain
 import argparse
 from utils.other_utils import explain_dataset, visualize_score_features, \
-    plot_molecule_importance, get_graph_by_idx
+    plot_molecule_importance, get_graph_by_idx, plot_denoised_mols
 from icecream import ic
 
 
@@ -79,6 +79,17 @@ def explain_model(exp_path:str) -> None:
 
     plot_importances(df = df, save_path=os.path.join(exp_path, f'Fold_{outer}_test_set', f'Fold_{inner}_val_set'))
 
+    for reaction in tqdm(opt.denoise_reactions):
+        ic(reaction)
+        mol = get_graph_by_idx(loader_all, reaction)
+        ic(mol)
+        ligand_masks, substrate_masks, boron_masks, all_masks  = explain_dataset(mol, 
+                                                                                 explainer)
+        ic(ligand_masks.shape)
+        plot_denoised_mols(ligand_masks,
+                           mol,
+                           'ligand',)
+        print(a)
 
     explainer = Explainer(
         model=model,
