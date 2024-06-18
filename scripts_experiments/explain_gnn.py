@@ -17,7 +17,8 @@ from icecream import ic
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-def explain_model(exp_path:str) -> None:
+
+def denoise_graphs(exp_path:str) -> None:
 
     opt = BaseOptions().parse()
 
@@ -52,10 +53,54 @@ def explain_model(exp_path:str) -> None:
         ),
     )
 
-    loader = DataLoader(test_loader.dataset)
+
+    mol = get_graph_by_idx(loader_all, int(opt.denoise_reactions))
+
+    masks  = explain_dataset(reaction = mol,
+                                 explainer = explainer,
+                                 mol = opt.denoise_mol,)
+        
+    plot_denoised_mols(mask = masks,
+                           graph = mol,
+                           mol = opt.denoise_mol,
+                           analysis = opt.denoise_based_on,)
 
 
-    ligand_masks, substrate_masks, boron_masks, all_masks  = explain_dataset(test_loader.dataset, 
+
+def GNNExplainer_node_feats(exp_path:str) -> None:
+
+    opt = BaseOptions().parse()
+
+    outer, inner = opt.explain_model[0], opt.explain_model[1]
+
+    print('Analysing outer {}, inner {}'.format(outer, inner))
+
+    model_path = os.path.join(exp_path, f'Fold_{outer}_test_set', f'Fold_{inner}_val_set')
+
+    train_loader = torch.load(os.path.join(model_path, 'train_loader.pth'))
+    val_loader = torch.load(os.path.join(model_path, 'val_loader.pth'))
+    test_loader = torch.load(os.path.join(model_path, 'test_loader.pth'))
+
+    all_data = train_loader.dataset + val_loader.dataset + test_loader.dataset
+
+    model = GCN_explain(opt, n_node_features=all_data[0].num_node_features)
+    model_params = torch.load(os.path.join(model_path, 'model_params.pth'))
+    model.load_state_dict(model_params)
+
+    explainer = Explainer(
+        model=model,
+        algorithm=GNNExplainer(),
+        explanation_type='model',
+        node_mask_type='attributes',
+        edge_mask_type='object',
+        model_config=dict(
+            mode='regression',
+            task_level='graph',
+            return_type='raw',
+        ),
+    )
+
+    ligand_masks, substrate_masks, boron_masks, _  = explain_dataset(test_loader.dataset, 
                                                                              explainer)
 
     ligands = visualize_score_features(score = ligand_masks)
@@ -79,17 +124,29 @@ def explain_model(exp_path:str) -> None:
 
     plot_importances(df = df, save_path=os.path.join(exp_path, f'Fold_{outer}_test_set', f'Fold_{inner}_val_set'))
 
-    for reaction in tqdm(opt.denoise_reactions):
-        ic(reaction)
-        mol = get_graph_by_idx(loader_all, reaction)
-        ic(mol)
-        ligand_masks, substrate_masks, boron_masks, all_masks  = explain_dataset(mol, 
-                                                                                 explainer)
-        ic(ligand_masks.shape)
-        plot_denoised_mols(ligand_masks,
-                           mol,
-                           'ligand',)
-        print(a)
+
+
+def shapley_analysis(exp_path:str) -> None:
+
+    opt = BaseOptions().parse()
+
+    outer, inner = opt.explain_model[0], opt.explain_model[1]
+
+    print('Analysing outer {}, inner {}'.format(outer, inner))
+
+    model_path = os.path.join(exp_path, f'Fold_{outer}_test_set', f'Fold_{inner}_val_set')
+
+    train_loader = torch.load(os.path.join(model_path, 'train_loader.pth'))
+    val_loader = torch.load(os.path.join(model_path, 'val_loader.pth'))
+    test_loader = torch.load(os.path.join(model_path, 'test_loader.pth'))
+
+    all_data = train_loader.dataset + val_loader.dataset + test_loader.dataset
+
+    loader = DataLoader(all_data)
+
+    model = GCN_explain(opt, n_node_features=all_data[0].num_node_features)
+    model_params = torch.load(os.path.join(model_path, 'model_params.pth'))
+    model.load_state_dict(model_params)
 
     explainer = Explainer(
         model=model,
@@ -103,8 +160,6 @@ def explain_model(exp_path:str) -> None:
             return_type='raw',
         ),
     )
-
-    loader = DataLoader(loader_all.dataset)
 
     for molecule in tqdm(opt.explain_reactions):
         mol = get_graph_by_idx(loader, molecule)
