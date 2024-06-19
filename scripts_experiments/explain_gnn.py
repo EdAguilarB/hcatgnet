@@ -56,7 +56,7 @@ def denoise_graphs(exp_path:str) -> None:
 
     mol = get_graph_by_idx(loader_all, int(opt.denoise_reactions))
 
-    masks  = explain_dataset(reaction = mol,
+    masks  = explain_dataset(dataset = mol,
                                  explainer = explainer,
                                  mol = opt.denoise_mol,)
         
