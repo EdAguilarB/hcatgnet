@@ -229,7 +229,7 @@ def network_report(log_dir,
     file1.write("---------------------------------------------------------\n")
 
     create_st_parity_plot(real = y_true, predicted = y_pred, figure_name = 'outer_{}_inner_{}'.format(outer, inner), save_path = "{}".format(log_dir))
-    create_it_parity_plot(real = y_true, predicted = y_pred, index = idx, figure_name='outer_{}_inner_{}.html'.format(outer, inner), save_path="{}".format(log_dir))
+    #create_it_parity_plot(real = y_true, predicted = y_pred, index = idx, figure_name='outer_{}_inner_{}.html'.format(outer, inner), save_path="{}".format(log_dir))
 
     file1.write("OUTLIERS (TEST SET)\n")
     error_test = [(y_pred[i] - y_true[i]) for i in range(len(y_pred))]
@@ -562,7 +562,7 @@ def tml_report(log_dir,
     file1.write("---------------------------------------------------------\n")
 
     create_st_parity_plot(real = y_true, predicted = y_pred, figure_name = 'outer_{}_inner_{}'.format(outer, inner), save_path = "{}".format(log_dir))
-    create_it_parity_plot(real = y_true, predicted = y_pred, index = idx, figure_name='outer_{}_inner_{}.html'.format(outer, inner), save_path="{}".format(log_dir))
+    #create_it_parity_plot(real = y_true, predicted = y_pred, index = idx, figure_name='outer_{}_inner_{}.html'.format(outer, inner), save_path="{}".format(log_dir))
 
     file1.write("OUTLIERS (TEST SET)\n")
     error_test = [(y_pred[i] - y_true[i]) for i in range(len(y_pred))]
