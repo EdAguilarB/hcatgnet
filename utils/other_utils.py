@@ -21,7 +21,8 @@ from icecream import ic
 ######################################
 
 def explain_dataset(dataset: List, 
-                   explainer,):
+                   explainer,
+                   mol: Optional[str] = None,):
     
     #Creates a loader object from the dataset
     loader = DataLoader(dataset=dataset)
@@ -74,7 +75,14 @@ def explain_dataset(dataset: List,
     masks_boron = torch.cat(masks_boron, dim = 0)
     all_masks = torch.cat(all_masks, dim=0)
 
-    return masks_ligand, masks_substrate, masks_boron, all_masks
+    if mol == 'ligand':
+        return masks_ligand
+    elif mol == 'substrate':
+        return masks_substrate
+    elif mol == 'boron':
+        return masks_boron
+    else:
+        return masks_ligand, masks_substrate, masks_boron, all_masks
 
 def plot_denoised_mols(mask,
                        graph,
@@ -129,13 +137,64 @@ def plot_denoised_mols(mask,
 
     else:
         importance = mask.sum(dim=1).cpu().numpy()
-        ic(importance.shape)
-        ic(importance)
 
     if mol == 'ligand':
-        na_ligand = AddHs(Chem.MolFromSmiles(graph.ligand[0])).GetNumAtoms()
+        smiles = graph.ligand[0]
+
+    elif mol == 'substrate':
+        smiles = graph.substrate[0]
+    
+    elif mol == 'boron':
+        smiles = graph.boron[0]
+    
+    plot_weighted_mol(importance, 
+                      smiles)
+
+def plot_weighted_mol(mask, 
+                      smiles:str,
+                      ):
+
+    mol = AddHs(Chem.MolFromSmiles(smiles))
+    AllChem.EmbedMolecule(mol)
+    AllChem.UFFOptimizeMolecule(mol)
+
+    atoms = mol.GetNumAtoms()
+    coords = mol.GetConformer().GetPositions()
+    atom_symbol = [atom.GetSymbol() for atom in mol.GetAtoms()]
+
+    edge_idx = []
+
+    for bond in mol.GetBonds():
+        u, v = bond.GetBeginAtomIdx(), bond.GetEndAtomIdx()
+        edge_idx += [[u, v], [v, u]]
+
+    edge_idx = np.array(edge_idx).T
+    edge_coords = dict(zip(range(atoms), coords))
+
+    coords_edges = [(np.concatenate([np.expand_dims(edge_coords[u], axis=1), np.expand_dims(edge_coords[v], axis =1)], 
+                                axis = 1)) for u, v in zip(edge_idx[0], edge_idx[1])]
+
+    mask = mask/np.max(mask)
 
 
+    atoms_trace = trace_atoms(atom_symbol = atom_symbol,
+                              coords=coords,
+                              sizes=sizes,
+                              colors=colors_n,
+                              transparencies=mask)
+    
+    edges_trace = trace_bonds(coords_edges=coords_edges, 
+                              edge_mask_dict=edge_idx[0])
+    
+    traces = atoms_trace + edges_trace
+
+    fig = go.Figure(data=traces)
+    fig.update_layout(template =  'plotly_white')
+    fig.update_layout(scene=dict(xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+                                yaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+                                zaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+                                xaxis_title='', yaxis_title='', zaxis_title=''))
+    fig.show()
 
 
 def visualize_score_features(
@@ -393,21 +452,27 @@ def select_palette(palette, neg_nodes, neg_edges):
     
     return colors, color_nodes, color_edges
 
-def trace_atoms(atom_symbol, coords, sizes, colors):
-
+def trace_atoms(atom_symbol, coords, sizes, colors, transparencies=None):
     trace_atoms = [None] * len(atom_symbol)
     for i in range(len(atom_symbol)):
-
-        trace_atoms[i] = go.Scatter3d(x=[coords[i][0]],
-                            y=[coords[i][1]],
-                            z=[coords[i][2]],
-                            mode='markers',
-                            text = f'atom {atom_symbol[i]}',
-                            legendgroup='Atoms',
-                            showlegend=False,
-                            marker=dict(symbol='circle',
-                                                    size=sizes[atom_symbol[i]],
-                                                    color=colors[atom_symbol[i]])
+        marker_dict = {
+            'symbol': 'circle',
+            'size': sizes[atom_symbol[i]],
+            'color': colors[atom_symbol[i]]
+        }
+        
+        if transparencies is not None:
+            marker_dict['opacity'] = transparencies[i]
+        
+        trace_atoms[i] = go.Scatter3d(
+            x=[coords[i][0]],
+            y=[coords[i][1]],
+            z=[coords[i][2]],
+            mode='markers',
+            text=f'atom {atom_symbol[i]}',
+            legendgroup='Atoms',
+            showlegend=False,
+            marker=marker_dict
         )
     return trace_atoms
 

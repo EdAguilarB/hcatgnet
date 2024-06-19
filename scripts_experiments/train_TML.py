@@ -73,7 +73,7 @@ def train_tml_model_nested_cv() -> None:
                   format(outer, real_inner, counter, TOT_RUNS, train_rmse, val_rmse, test_rmse) )
             
             # Generate a report of the model performance
-            tml_report(log_dir=f"{current_dir}/{opt.log_dir_results}/learning_set/results_{opt.tml_algorithm}/",
+            tml_report(log_dir=f"{current_dir}/{opt.log_dir_results}/{opt.filename[:-4]}/results_{opt.tml_algorithm}/",
                        data = (train_set, val_set, test_set),
                        outer = outer,
                        inner = real_inner,
@@ -89,7 +89,7 @@ def train_tml_model_nested_cv() -> None:
 
         # Generate a report of the model performance for the outer/test fold
         network_outer_report(
-            log_dir=f"{current_dir}/{opt.log_dir_results}/learning_set/results_{opt.tml_algorithm}/Fold_{outer}_test_set/",
+            log_dir=f"{current_dir}/{opt.log_dir_results}/{opt.filename[:-4]}/results_{opt.tml_algorithm}/Fold_{outer}_test_set/",
             outer=outer,
         )
 

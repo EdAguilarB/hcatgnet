@@ -116,7 +116,7 @@ def train_network_nested_cv() -> None:
 
             # Report the model performance
             network_report(
-                log_dir=f"{current_dir}/{opt.log_dir_results}/learning_set/results_GNN/",
+                log_dir=f"{current_dir}/{opt.log_dir_results}/{opt.filename[:-4]}/results_GNN/",
                 loaders=(train_loader, val_loader, test_loader),
                 outer=outer,
                 inner=real_inner,
@@ -134,7 +134,7 @@ def train_network_nested_cv() -> None:
         print('Generating outer report')
 
         network_outer_report(
-            log_dir=f"{current_dir}/{opt.log_dir_results}/learning_set/results_GNN/Fold_{outer}_test_set/",
+            log_dir=f"{current_dir}/{opt.log_dir_results}/{opt.filename[:-4]}/results_GNN/Fold_{outer}_test_set/",
             outer=outer,
         )
 
