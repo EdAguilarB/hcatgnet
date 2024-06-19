@@ -20,17 +20,17 @@ def run_all_exp():
         predict_final_test()
 
     if opt.compare_models:
-        plot_results(exp_dir=os.path.join(os.getcwd(), opt.log_dir_results, 'learning_set'))
+        plot_results(exp_dir=os.path.join(os.getcwd(), opt.log_dir_results, {opt.filename[:-4]}))
         plot_results(exp_dir=os.path.join(os.getcwd(), opt.log_dir_results, 'final_test'))
 
     if opt.denoise_graph:
-        denoise_graphs(exp_path=os.path.join(os.getcwd(), opt.log_dir_results, 'learning_set', 'results_GNN'))
+        denoise_graphs(exp_path=os.path.join(os.getcwd(), opt.log_dir_results, {opt.filename[:-4]}, 'results_GNN'))
 
     if opt.GNNExplainer:
-        GNNExplainer_node_feats(exp_path=os.path.join(os.getcwd(), opt.log_dir_results, 'learning_set', 'results_GNN'))
+        GNNExplainer_node_feats(exp_path=os.path.join(os.getcwd(), opt.log_dir_results, {opt.filename[:-4]}, 'results_GNN'))
 
     if opt.shapley_analysis:
-        shapley_analysis(exp_path=os.path.join(os.getcwd(), opt.log_dir_results, 'learning_set', 'results_GNN'))
+        shapley_analysis(exp_path=os.path.join(os.getcwd(), opt.log_dir_results, {opt.filename[:-4]}, 'results_GNN'))
 
 
 if __name__ == '__main__':

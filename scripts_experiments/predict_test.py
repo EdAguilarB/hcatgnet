@@ -38,7 +38,7 @@ def predict_final_test() -> None:
             
             print('Analysing models trained using as validation set {}'.format(real_inner))
 
-            model_dir = os.path.join(current_dir, opt.log_dir_results, 'learning_set', 'results_GNN', f'Fold_{outer}_test_set', f'Fold_{real_inner}_val_set')
+            model_dir = os.path.join(current_dir, opt.log_dir_results, {opt.filename[:-4]}, 'results_GNN', f'Fold_{outer}_test_set', f'Fold_{real_inner}_val_set')
 
             model = torch.load(model_dir+'/model.pth')
             model_params = torch.load(model_dir+'/model_params.pth')
@@ -55,7 +55,7 @@ def predict_final_test() -> None:
                            best_epoch=None,
                            save_all=False)
             
-            tml_dir = os.path.join(current_dir, opt.log_dir_results, 'learning_set', f'results_{opt.tml_algorithm}', f'Fold_{outer}_test_set', f'Fold_{real_inner}_val_set')
+            tml_dir = os.path.join(current_dir, opt.log_dir_results, {opt.filename[:-4]}, f'results_{opt.tml_algorithm}', f'Fold_{outer}_test_set', f'Fold_{real_inner}_val_set')
 
             model = joblib.load(tml_dir+'/model.sav')
             train_data = pd.read_csv(tml_dir+'/train.csv')
