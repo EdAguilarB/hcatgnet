@@ -284,6 +284,13 @@ class BaseOptions:
         )
 
         self.parser.add_argument(
+            '--norm',
+            type=self.str2bool,
+            default=False,
+            help='Whether or not to normalise the masks per molecule',
+        )
+
+        self.parser.add_argument(
             '--explain_reactions',
             type=list,
             default=[82, 416, 89, 91, 95, 97],
