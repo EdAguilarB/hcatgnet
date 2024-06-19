@@ -62,6 +62,9 @@ def explain_dataset(dataset: List,
         # Get the masks for each node within the molecule
         masks = explanation.node_mask
 
+        masks = masks/torch.max(masks.sum(dim=1))
+
+
         # Append the masks for each molecule to the list
         masks_ligand.append(masks[ia_ligand:fa_ligand])
         masks_substrate.append(masks[ia_substrate: fa_substrate])
@@ -87,7 +90,8 @@ def explain_dataset(dataset: List,
 def plot_denoised_mols(mask,
                        graph,
                        mol: str,
-                       analysis:str=None,):
+                       analysis:str=None,
+                       norm:bool=False,):
     
     atom_identity = 10
     degree = 4
@@ -148,10 +152,12 @@ def plot_denoised_mols(mask,
         smiles = graph.boron[0]
     
     plot_weighted_mol(importance, 
-                      smiles)
+                      smiles,
+                      norm)
 
 def plot_weighted_mol(mask, 
                       smiles:str,
+                      norm=False
                       ):
 
     mol = AddHs(Chem.MolFromSmiles(smiles))
@@ -174,7 +180,14 @@ def plot_weighted_mol(mask,
     coords_edges = [(np.concatenate([np.expand_dims(edge_coords[u], axis=1), np.expand_dims(edge_coords[v], axis =1)], 
                                 axis = 1)) for u, v in zip(edge_idx[0], edge_idx[1])]
 
-    mask = mask/np.max(mask)
+    if norm==True:
+        mask = mask/np.max(mask)
+
+    ic(mask)
+
+    mask = np.where(mask < 0.6, np.power(mask, 2), np.sqrt(mask))
+
+    ic(mask)
 
 
     atoms_trace = trace_atoms(atom_symbol = atom_symbol,

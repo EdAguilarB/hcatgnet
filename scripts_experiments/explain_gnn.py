@@ -63,7 +63,8 @@ def denoise_graphs(exp_path:str) -> None:
     plot_denoised_mols(mask = masks,
                            graph = mol,
                            mol = opt.denoise_mol,
-                           analysis = opt.denoise_based_on,)
+                           analysis = opt.denoise_based_on,
+                           norm=opt.norm,)
 
 
 
