@@ -344,8 +344,8 @@ def plot_mean_predictions(df):
     plt.plot([min_val, max_val], [min_val, max_val], 'k-', linewidth=2, label='Line of Equality')
 
     # Titles and labels
-    plt.xlabel('Real ΔΔG / kJ $mol^{-1}$', fontsize=26)
-    plt.ylabel('Mean Predicted ΔΔG / kJ $mol^{-1}$', fontsize=26)
+    plt.xlabel('Real ΔΔG$^{\u2021}$ / kJ $mol^{-1}$', fontsize=26)
+    plt.ylabel('Mean Predicted ΔΔG$^{\u2021}$ / kJ $mol^{-1}$', fontsize=26)
 
     # Enhancing the overall look
     plt.xticks(fontsize=18)
