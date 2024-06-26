@@ -448,12 +448,12 @@ colors_cb = {
 }
 
 sizes = {
-    'C': 69/6,
-    'O': 66/6,
-    'N': 71/6,
-    'H': 31/6,
-    'B': 84/6,
-    'F': 64/6
+    'C': 69/2,
+    'O': 66/2,
+    'N': 71/2,
+    'H': 31/2,
+    'B': 84/2,
+    'F': 64/2
 }
 
 def select_palette(palette, neg_nodes, neg_edges):
