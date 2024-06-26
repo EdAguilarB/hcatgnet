@@ -67,9 +67,8 @@ def denoise_graphs(opt, exp_path:str) -> None:
 
 
 
-def GNNExplainer_node_feats(exp_path:str) -> None:
+def GNNExplainer_node_feats(opt, exp_path:str) -> None:
 
-    opt = BaseOptions().parse()
 
     outer, inner = opt.explain_model[0], opt.explain_model[1]
 
@@ -126,9 +125,7 @@ def GNNExplainer_node_feats(exp_path:str) -> None:
 
 
 
-def shapley_analysis(exp_path:str) -> None:
-
-    opt = BaseOptions().parse()
+def shapley_analysis(opt, exp_path:str) -> None:
 
     outer, inner = opt.explain_model[0], opt.explain_model[1]
 
@@ -161,9 +158,19 @@ def shapley_analysis(exp_path:str) -> None:
         ),
     )
 
-    for molecule in tqdm(opt.explain_reactions):
-        mol = get_graph_by_idx(loader, molecule)
-        print('Analysing reaction {}'.format(molecule))
+    try:
+        for molecule in tqdm(opt.explain_reactions):
+            mol = get_graph_by_idx(loader, molecule)
+            print('Analysing reaction {}'.format(molecule))
+            print('Ligand id: {}'.format(mol.ligand_id[0]))
+            print('Reaction ddG: {:.2f}'.format(mol.y.item()))
+            print('Reaction predicted ddG: {:.2f}'.format(explainer.get_prediction(x = mol.x, edge_index=mol.edge_index, batch_index=mol.batch).item()))
+            explanation = explainer(x = mol.x, edge_index=mol.edge_index,  batch_index=mol.batch)
+            plot_molecule_importance(mol_graph=mol, mol='l', explanation=explanation, palette='normal')
+
+    except:
+        mol = get_graph_by_idx(loader, opt.explain_reactions)
+        print('Analysing reaction {}'.format(opt.explain_reactions))
         print('Ligand id: {}'.format(mol.ligand_id[0]))
         print('Reaction ddG: {:.2f}'.format(mol.y.item()))
         print('Reaction predicted ddG: {:.2f}'.format(explainer.get_prediction(x = mol.x, edge_index=mol.edge_index, batch_index=mol.batch).item()))
