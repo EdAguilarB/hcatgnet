@@ -91,7 +91,7 @@ def plot_denoised_mols(mask,
                        graph,
                        mol: str,
                        analysis:str=None,
-                       norm:bool=False,):
+                       norm:bool=True,):
     
     atom_identity = 10
     degree = 4
@@ -139,6 +139,9 @@ def plot_denoised_mols(mask,
             importance = importances[6]
             importance = importance.sum(dim=1).cpu().numpy()
 
+        else:
+            importance = mask.sum(dim=1).cpu().numpy()
+
     else:
         importance = mask.sum(dim=1).cpu().numpy()
 
@@ -179,6 +182,8 @@ def plot_weighted_mol(mask,
 
     coords_edges = [(np.concatenate([np.expand_dims(edge_coords[u], axis=1), np.expand_dims(edge_coords[v], axis =1)], 
                                 axis = 1)) for u, v in zip(edge_idx[0], edge_idx[1])]
+    
+    ic(mask)
 
     if norm==True:
         mask = mask/np.max(mask)
@@ -443,12 +448,12 @@ colors_cb = {
 }
 
 sizes = {
-    'C': 69/8,
-    'O': 66/8,
-    'N': 71/8,
-    'H': 31/8,
-    'B': 84/8,
-    'F': 64/8
+    'C': 69/6,
+    'O': 66/6,
+    'N': 71/6,
+    'H': 31/6,
+    'B': 84/6,
+    'F': 64/6
 }
 
 def select_palette(palette, neg_nodes, neg_edges):
