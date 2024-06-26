@@ -24,7 +24,7 @@ def run_all_exp():
         plot_results(exp_dir=os.path.join(os.getcwd(), opt.log_dir_results, 'final_test'))
 
     if opt.denoise_graph:
-        denoise_graphs(exp_path=os.path.join(os.getcwd(), opt.log_dir_results, opt.filename[:-4], 'results_GNN'))
+        denoise_graphs(opt, exp_path=os.path.join(os.getcwd(), opt.log_dir_results, opt.filename[:-4], 'results_GNN'))
 
     if opt.GNNExplainer:
         GNNExplainer_node_feats(exp_path=os.path.join(os.getcwd(), opt.log_dir_results, opt.filename[:-4], 'results_GNN'))
