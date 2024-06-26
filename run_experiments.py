@@ -11,7 +11,7 @@ def run_all_exp():
     opt = BaseOptions().parse()
 
     if opt.train_GNN:
-        train_network_nested_cv()
+        train_network_nested_cv(opt)
     
     if opt.train_tml:
         train_tml_model_nested_cv()
