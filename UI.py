@@ -73,7 +73,7 @@ class Application(tk.Tk):
         if self.denoise_graph_var.get():
             denoise_window = tk.Toplevel(self)
             denoise_window.title("Denoise Graph Options")
-            denoise_window.geometry("400x300")
+            denoise_window.geometry("400x500")
             denoise_window.configure(bg='#f0f0f0')
 
             # Denoise molecule label
