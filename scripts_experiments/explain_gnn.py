@@ -18,9 +18,7 @@ from icecream import ic
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 
-def denoise_graphs(exp_path:str) -> None:
-
-    opt = BaseOptions().parse()
+def denoise_graphs(opt, exp_path:str) -> None:
 
     outer, inner = opt.explain_model[0], opt.explain_model[1]
 
@@ -64,7 +62,8 @@ def denoise_graphs(exp_path:str) -> None:
                            graph = mol,
                            mol = opt.denoise_mol,
                            analysis = opt.denoise_based_on,
-                           norm=opt.norm,)
+                            norm = opt.norm,
+                           )
 
 
 
