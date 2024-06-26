@@ -1,4 +1,5 @@
 import argparse
+import os
 
 
 class BaseOptions:
@@ -131,7 +132,7 @@ class BaseOptions:
         self.parser.add_argument(
             '--log_dir_results',
             type=str,
-            default='results/',
+            default=os.path.join(os.getcwd(), 'results/'),
             help='path to the folder where the results will be saved',
             )
         
