@@ -9,10 +9,6 @@ from math import sqrt
 def train_tml_model_nested_cv(opt) -> None:
 
     print('Initialising chiral ligands selectivity prediction using a traditional ML approach.')
-    
-    # Get the current working directory 
-    # Get the current working directory
-    current_dir = os.getcwd()
 
     # Load the data
     filename = opt.filename[:-4] + '_folds' + opt.filename[-4:]
