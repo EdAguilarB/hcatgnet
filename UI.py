@@ -41,6 +41,12 @@ class Application(tk.Tk):
         self.log_dir_entry = None
         self.log_dir_name_entry = None
 
+        # train_tml variables
+        self.data_entry_tml = None
+        self.log_dir_entry_tml = None
+        self.log_dir_name_entry_tml = None
+        self.train_algorithm_tml = None
+
         # Denoise variables
         self.denoise_reactions = None  # To store the denoise reactions value
         self.denoise_mol = None  # To store the denoise molecule value
@@ -65,7 +71,9 @@ class Application(tk.Tk):
         self.shap_inner = None
         self.shap_norm = None
 
-        
+        self.tml_algorithm_dict = {'Random Forest': 'rf',
+                                   'Gradient Boosting': 'gb',
+                                   'Linear Regression': 'lr'}
         
 
         self.denoise_mol_dict = {'Ligand': 'ligand',
@@ -101,7 +109,9 @@ class Application(tk.Tk):
         train_GNN_checkbutton = ttk.Checkbutton(options_frame, text="Train GNN", variable=self.train_GNN_var, command=self.open_train_GNN_window)
         train_GNN_checkbutton.grid(column=0, row=0, sticky=tk.W, padx=10, pady=5)
 
-        ttk.Checkbutton(options_frame, text="Train TML Model", variable=self.train_tml_var).grid(column=0, row=1, sticky=tk.W, padx=10, pady=5)
+        train_TML_checkbutton = ttk.Checkbutton(options_frame, text="Train TML Model", variable=self.train_tml_var, command=self.open_train_tml_window)
+        train_TML_checkbutton.grid(column=0, row=1, sticky=tk.W, padx=10, pady=5)
+
         ttk.Checkbutton(options_frame, text="Predict Unseen Data", variable=self.predict_unseen_var).grid(column=0, row=2, sticky=tk.W, padx=10, pady=5)
         ttk.Checkbutton(options_frame, text="Compare Models", variable=self.compare_models_var).grid(column=0, row=3, sticky=tk.W, padx=10, pady=5)
 
@@ -118,6 +128,18 @@ class Application(tk.Tk):
         run_button = ttk.Button(self, text="Run", command=self.run_experiments)
         run_button.pack(pady=20)
 
+
+    def browse_file(self):
+        file_path = fd.askopenfilename(filetypes=[("CSV files", "*.csv"), ("All files", "*.*")])
+        if file_path:
+            self.data_entry.delete(0, tk.END)
+            self.data_entry.insert(0, file_path)
+
+    def browse_directory(self):
+        dir_path = fd.askdirectory()
+        if dir_path:
+            self.log_dir_entry.delete(0, tk.END)
+            self.log_dir_entry.insert(0, dir_path)
 
     def open_train_GNN_window(self):
         if self.train_GNN_var.get():
@@ -158,22 +180,6 @@ class Application(tk.Tk):
             apply_button = ttk.Button(train_GNN_window, text="Apply", command=lambda: self.apply_GNN_train_options(train_GNN_window))
             apply_button.pack(pady=10)
 
-
-
-    def browse_file(self):
-        file_path = fd.askopenfilename(filetypes=[("CSV files", "*.csv"), ("All files", "*.*")])
-        if file_path:
-            self.data_entry.delete(0, tk.END)
-            self.data_entry.insert(0, file_path)
-
-    def browse_directory(self):
-        dir_path = fd.askdirectory()
-        if dir_path:
-            self.log_dir_entry.delete(0, tk.END)
-            self.log_dir_entry.insert(0, dir_path)
-
-
-
     def apply_GNN_train_options(self, window):
         try:
             self.data_entry = self.data_entry.get()
@@ -184,6 +190,69 @@ class Application(tk.Tk):
             self.denoise_reactions = None
         window.destroy()
 
+
+    def open_train_tml_window(self):
+        if self.train_tml_var.get():
+            # Create a new window
+            train_tml_window = tk.Toplevel(self)
+            train_tml_window.title("Train TML Options")
+            train_tml_window.geometry("600x650")
+            train_tml_window.configure(bg='#f0f0f0')
+
+            # Select csv file with the data
+            label_data = ttk.Label(train_tml_window, text="Select the csv file with the data:", style='TLabel')
+            label_data.pack(pady=10)
+
+            self.data_entry = ttk.Entry(train_tml_window, font=('Helvetica', 14), width=50)
+            self.data_entry.pack(pady=5)
+
+            browse_button = ttk.Button(train_tml_window, text="Browse", command=self.browse_file)
+            browse_button.pack(pady=5)
+
+            # Log directory
+            log_dir_label = ttk.Label(train_tml_window, text="Log directory:", style='TLabel')
+            log_dir_label.pack(pady=10)
+
+            self.log_dir_entry = ttk.Entry(train_tml_window, font=('Helvetica', 14), width=50)
+            self.log_dir_entry.pack(pady=5)
+
+            log_dir_button = ttk.Button(train_tml_window, text="Browse", command=self.browse_directory)
+            log_dir_button.pack(pady=5)
+
+            # Log directory name
+            log_dir_name_label = ttk.Label(train_tml_window, text="Log directory name:", style='TLabel')
+            log_dir_name_label.pack(pady=10)
+
+            self.log_dir_name_entry = ttk.Entry(train_tml_window, font=('Helvetica', 14), width=50)
+            self.log_dir_name_entry.pack(pady=5)
+
+            # Denoise molecule label
+            label_choose_tml = ttk.Label(train_tml_window, text="Choose the tml algorithm to train:", style='TLabel')
+            label_choose_tml.pack(pady=10)
+
+            # Radio button options for denoise molecule
+            self.train_tml_algorithm = tk.StringVar()
+
+            options = ['Gradient Boosting', 'Random Forest', 'Linear Regression']
+
+            for option in options:
+                rb = ttk.Radiobutton(train_tml_window, text=option, variable=self.train_tml_algorithm, value=option)
+                rb.pack(anchor='center', padx=20)
+
+            # Apply button
+            apply_button = ttk.Button(train_tml_window, text="Apply", command=lambda: self.apply_tml_train_options(train_tml_window))
+            apply_button.pack(pady=10)
+
+    def apply_tml_train_options(self, window):
+        try:
+            self.data_entry_tml = self.data_entry.get()
+            self.log_dir_entry_tml = self.log_dir_entry.get()
+            self.log_dir_name_entry_tml = self.log_dir_name_entry.get()
+            self.train_algorithm_tml = self.tml_algorithm_dict[self.train_tml_algorithm.get()]
+
+        except ValueError:
+            self.denoise_reactions = None
+        window.destroy()
 
 
     def open_denoise_window(self):
@@ -465,7 +534,12 @@ class Application(tk.Tk):
             train_network_nested_cv(opt)
 
         if self.train_tml_var.get():
-            train_tml_model_nested_cv()
+            path, filename = os.path.split(self.data_entry_tml)
+            opt.root = os.path.dirname(path)
+            opt.filename = filename
+            opt.log_dir_results = os.path.join(self.log_dir_entry_tml, self.log_dir_name_entry_tml)
+            opt.tml_algorithm = self.train_algorithm_tml
+            train_tml_model_nested_cv(opt)
 
         if self.predict_unseen_var.get():
             predict_final_test()
@@ -496,7 +570,7 @@ class Application(tk.Tk):
 
         if self.shapley_analysis_var.get():
             # Update opt with user-provided shap_reactions value
-            opt.explain_reactions = self.shap_reactions
+            opt.shap_index = self.shap_reactions
             opt.explain_model = [self.shap_outer, self.shap_inner]
             # Run shapley_analysis
             shapley_analysis(opt, exp_path=os.path.join(os.getcwd(), opt.log_dir_results, opt.filename[:-4], 'results_GNN'))
