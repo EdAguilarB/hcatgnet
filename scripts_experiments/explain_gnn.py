@@ -1,6 +1,5 @@
 import os
 import sys
-from options.base_options import BaseOptions
 import torch
 from tqdm import tqdm
 from torch_geometric.loader import DataLoader
@@ -9,7 +8,6 @@ import pandas as pd
 
 from utils.plot_utils import  plot_importances
 from model.gcn import GCN_explain
-import argparse
 from utils.other_utils import explain_dataset, visualize_score_features, \
     plot_molecule_importance, get_graph_by_idx, plot_denoised_mols
 from icecream import ic
@@ -62,7 +60,7 @@ def denoise_graphs(opt, exp_path:str) -> None:
                            graph = mol,
                            mol = opt.denoise_mol,
                            analysis = opt.denoise_based_on,
-                            norm = opt.norm,
+                            norm = opt.norm_denoise,
                            )
 
 
@@ -159,7 +157,7 @@ def shapley_analysis(opt, exp_path:str) -> None:
     )
 
     try:
-        for molecule in tqdm(opt.explain_reactions):
+        for molecule in tqdm(opt.shap_index):
             mol = get_graph_by_idx(loader, molecule)
             print('Analysing reaction {}'.format(molecule))
             print('Ligand id: {}'.format(mol.ligand_id[0]))
@@ -169,8 +167,8 @@ def shapley_analysis(opt, exp_path:str) -> None:
             plot_molecule_importance(mol_graph=mol, mol='l', explanation=explanation, palette='normal')
 
     except:
-        mol = get_graph_by_idx(loader, opt.explain_reactions)
-        print('Analysing reaction {}'.format(opt.explain_reactions))
+        mol = get_graph_by_idx(loader, opt.shap_index)
+        print('Analysing reaction {}'.format(opt.shap_index))
         print('Ligand id: {}'.format(mol.ligand_id[0]))
         print('Reaction ddG: {:.2f}'.format(mol.y.item()))
         print('Reaction predicted ddG: {:.2f}'.format(explainer.get_prediction(x = mol.x, edge_index=mol.edge_index, batch_index=mol.batch).item()))
