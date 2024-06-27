@@ -14,7 +14,7 @@ def run_all_exp():
         train_network_nested_cv(opt)
     
     if opt.train_tml:
-        train_tml_model_nested_cv()
+        train_tml_model_nested_cv(opt)
 
     if opt.predict_unseen:
         predict_final_test()
