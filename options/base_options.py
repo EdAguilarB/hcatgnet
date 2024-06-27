@@ -9,6 +9,10 @@ class BaseOptions:
 
     def initialize(self):
 
+        ###########################################
+        ########Options to run experiments#########
+        ###########################################
+
         self.parser.add_argument(
             '--train_GNN', 
             type=self.str2bool,
@@ -79,6 +83,11 @@ class BaseOptions:
             default='experiment',
             help='name of the experiment',
             ),
+        
+
+        ###########################################
+        ##############Options Dataset##############
+        ###########################################
 
         self.parser.add_argument(
             '--root', 
@@ -108,13 +117,10 @@ class BaseOptions:
             help='path to the folder containing the csv files',
             )
         
-        self.parser.add_argument(
-            '--filename_predict',
-            type=str,
-            default='final_test.csv',
-            help='name of the csv file for the final test',
-            )
-        
+        ###########################################
+        ###Options to predict unseen datapoints####
+        ###########################################
+
         self.parser.add_argument(
             '--root_predict', 
             type=str, 
@@ -123,12 +129,23 @@ class BaseOptions:
             )
         
         self.parser.add_argument(
+            '--filename_predict',
+            type=str,
+            default='final_test.csv',
+            help='name of the csv file for the final test',
+            )
+        
+        
+        self.parser.add_argument(
             '--predict_model',
             type=str,
             default='learning_set',
             help='Model to use for prediction. Options: learning_set or all_data',
             )
         
+        ###########################################
+        ##########Options to log results###########
+        ###########################################
         self.parser.add_argument(
             '--log_dir_results',
             type=str,
@@ -136,12 +153,20 @@ class BaseOptions:
             help='path to the folder where the results will be saved',
             )
         
+        ###########################################
+        #########Smiles columns in dataset#########
+        ###########################################
         self.parser.add_argument(
             '--mol_cols',
             type=str,
             default=['Ligand', 'substrate', 'boron reagent'],
             help='column names of the reactant and product smiles',
             )
+        
+
+        ###########################################
+        ############Training Options GNN###########
+        ###########################################
         
         self.parser.add_argument(
             '--folds',
@@ -254,6 +279,10 @@ class BaseOptions:
             default=250,
             help='Number of epochs',
             )  
+
+        ###########################################
+        ############Training Options TML###########
+        ###########################################
         
         self.parser.add_argument(
             '--tml_algorithm',
@@ -262,14 +291,31 @@ class BaseOptions:
             help='Traditional ML algorithm to use. Allowed values: lr for linear regression, gb for gradient boosting, or rf for random forest.',
             )
 
+        ###########################################
+        ############Explain Options GNN###########
+        ###########################################
 
+        # model to be explained
+        self.parser.add_argument(
+            '--explain_model',
+            type=list,
+            default=[8, 10],
+            help='List of outer, inner fold to explain',
+        )
+
+        ######################
+        ###Denoise function###
+        ######################
+
+        # reaction to denoise 
         self.parser.add_argument(
             '--denoise_reactions',
             type=int,
             default=1,
-            help='List of index of reactions to explain',
+            help='Reaction to be denoised using the GNNExplainer Algorithm',
         )
 
+        # Denoise the grpah based on a node feature
         self.parser.add_argument(
             '--denoise_based_on',
             type=str,
@@ -277,6 +323,7 @@ class BaseOptions:
             help='Denoise the graph based on a given node features. Allowed values: None, atom_identity, degree, hyb, aromatic, ring, chiral, conf',
         )
 
+        # Select molecule to be denoised
         self.parser.add_argument(
             '--denoise_mol',
             type=str,
@@ -284,26 +331,33 @@ class BaseOptions:
             help='Denoise the given molecule of the reaction. Allowed values: ligand, substrate, boron',
         )
 
+        # wheter or not to normalize the GNNExplainer attribution scores
         self.parser.add_argument(
-            '--norm',
+            '--norm_denoise',
             type=self.str2bool,
             default=False,
             help='Whether or not to normalise the masks per molecule',
         )
 
+        ######################
+        #####Shap function####
+        ######################
+        
         self.parser.add_argument(
-            '--explain_reactions',
+            '--shap_index',
             type=list,
             default=[82, 416, 89, 91, 95, 97],
             help='List of index of reactions to explain',
         )
 
+        # molecule to apply shap analysis
         self.parser.add_argument(
-            '--explain_model',
+            '--shap_mol',
             type=list,
-            default=[8, 10],
-            help='List of outer, inner fold to explain',
+            default='ligand',
+            help='Molecule to analyze using shap. Allowed values: "l" for ligand, "s" for substrate, or "b" for organoboron reagent',
         )
+
         
         self.parser.add_argument(
             '--global_seed',
