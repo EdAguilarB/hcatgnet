@@ -3,6 +3,7 @@ from tkinter import ttk
 import tkinter.filedialog as fd
 from options.base_options import BaseOptions
 import os
+import sys
 
 # Experiment scripts
 from scripts_experiments.train_GNN import train_network_nested_cv
@@ -12,6 +13,8 @@ from scripts_experiments.compare_gnn_tml import plot_results
 from scripts_experiments.explain_gnn import denoise_graphs, GNNExplainer_node_feats, shapley_analysis
 
 from icecream import ic
+
+
 
 class Application(tk.Tk):
     def __init__(self):
@@ -26,6 +29,8 @@ class Application(tk.Tk):
         self.style.configure('TCheckbutton', font=('Avenir Next', 14))
         self.style.configure('TButton', font=('Avenir Next', 14), padding=10)
         self.style.configure('TLabel', font=('Avenir Next', 16), background='#f0f0f0')
+
+        self.opt = BaseOptions().parse()
 
         # Create the variables
         self.train_GNN_var = tk.BooleanVar(value=False)
@@ -141,6 +146,17 @@ class Application(tk.Tk):
             self.log_dir_entry.delete(0, tk.END)
             self.log_dir_entry.insert(0, dir_path)
 
+
+    def clear_placeholder(self, event, entry, placeholder):
+        if entry.get() == placeholder:
+            entry.delete(0, tk.END)
+            entry.config(fg='black')
+
+    def add_placeholder(self, event, entry, placeholder):
+        if entry.get() == "":
+            entry.insert(0, placeholder)
+            entry.config(fg='grey')
+
     def open_train_GNN_window(self):
         if self.train_GNN_var.get():
             # Create a new window
@@ -153,7 +169,7 @@ class Application(tk.Tk):
             label_data = ttk.Label(train_GNN_window, text="Select the csv file with the data:", style='TLabel')
             label_data.pack(pady=10)
 
-            self.data_entry = ttk.Entry(train_GNN_window, font=('Helvetica', 14), width=50)
+            self.data_entry = ttk.Entry(train_GNN_window, font=('Avenir Next', 14), width=50)
             self.data_entry.pack(pady=5)
 
             browse_button = ttk.Button(train_GNN_window, text="Browse", command=self.browse_file)
@@ -163,7 +179,7 @@ class Application(tk.Tk):
             log_dir_label = ttk.Label(train_GNN_window, text="Log directory:", style='TLabel')
             log_dir_label.pack(pady=10)
 
-            self.log_dir_entry = ttk.Entry(train_GNN_window, font=('Helvetica', 14), width=50)
+            self.log_dir_entry = ttk.Entry(train_GNN_window, font=('Avenir Next', 14), width=50)
             self.log_dir_entry.pack(pady=5)
 
             log_dir_button = ttk.Button(train_GNN_window, text="Browse", command=self.browse_directory)
@@ -173,12 +189,97 @@ class Application(tk.Tk):
             log_dir_name_label = ttk.Label(train_GNN_window, text="Log directory name:", style='TLabel')
             log_dir_name_label.pack(pady=10)
 
-            self.log_dir_name_entry = ttk.Entry(train_GNN_window, font=('Helvetica', 14), width=50)
+            self.log_dir_name_entry = ttk.Entry(train_GNN_window, font=('Avenir Next', 14), width=50)
             self.log_dir_name_entry.pack(pady=5)
+
+            # Training Options button
+            training_options_button = ttk.Button(train_GNN_window, text="Customize training Options", command=self.open_training_options_window)
+            training_options_button.pack(pady=10)
 
             # Apply button
             apply_button = ttk.Button(train_GNN_window, text="Apply", command=lambda: self.apply_GNN_train_options(train_GNN_window))
             apply_button.pack(pady=10)
+
+
+    def open_training_options_window(self):
+
+        # Create a second window for training options
+        training_options_window = tk.Toplevel(self)
+        training_options_window.title("Training Options")
+        training_options_window.geometry("400x400")
+        training_options_window.configure(bg='#f0f0f0')
+
+        # Example content for the training options window
+        label_options = ttk.Label(training_options_window, text="Training Options:", style='TLabel')
+        label_options.pack(pady=10)
+
+        # emb size entry 
+        emb_label = ttk.Label(training_options_window, text="Embedding size:", style='TLabel')
+        emb_label.pack(pady=5)
+        default_emb_size = str(self.opt.embedding_dim)
+        self.emb_size_entry = tk.Entry(training_options_window, font=('Avenir Next', 14), fg='grey')
+        self.emb_size_entry.pack(pady=5)
+        self.emb_size_entry.insert(0, default_emb_size)
+        self.emb_size_entry.bind("<FocusIn>", lambda event: self.clear_placeholder(event, self.emb_size_entry, default_emb_size))
+        self.emb_size_entry.bind("<FocusOut>", lambda event: self.add_placeholder(event, self.emb_size_entry, default_emb_size))
+
+        # num_convs entry 
+        convs_label = ttk.Label(training_options_window, text="Number of convolutions:", style='TLabel')
+        convs_label.pack(pady=5)
+        default_n_conv = str(self.opt.n_convolutions)
+        self.num_conv_entry = tk.Entry(training_options_window, font=('Avenir Next', 14), fg='grey')
+        self.num_conv_entry.pack(pady=5)
+        self.num_conv_entry.insert(0, default_n_conv)
+        self.num_conv_entry.bind("<FocusIn>", lambda event: self.clear_placeholder(event, self.num_conv_entry, default_n_conv))
+        self.num_conv_entry.bind("<FocusOut>", lambda event: self.add_placeholder(event, self.num_conv_entry, default_n_conv))
+
+        # num redaout entry 
+        readout_label = ttk.Label(training_options_window, text="Number of readout layers:", style='TLabel')
+        readout_label.pack(pady=5)
+        default_readout = str(self.opt.readout_layers)
+        self.readout_entry = tk.Entry(training_options_window, font=('Avenir Next', 14), fg='grey')
+        self.readout_entry.pack(pady=5)
+        self.readout_entry.insert(0, default_readout)
+        self.readout_entry.bind("<FocusIn>", lambda event: self.clear_placeholder(event, self.readout_entry, default_readout))
+        self.readout_entry.bind("<FocusOut>", lambda event: self.add_placeholder(event, self.readout_entry, default_readout))
+
+        # epochs entry 
+        epochs_label = ttk.Label(training_options_window, text="Number of epochs:", style='TLabel')
+        epochs_label.pack(pady=5)
+        default_epochs = str(self.opt.epochs)
+        self.epochs_entry = tk.Entry(training_options_window, font=('Avenir Next', 14), fg='grey')
+        self.epochs_entry.pack(pady=5)
+        self.epochs_entry.insert(0, default_epochs)
+        self.epochs_entry.bind("<FocusIn>", lambda event: self.clear_placeholder(event, self.epochs_entry, default_epochs))
+        self.epochs_entry.bind("<FocusOut>", lambda event: self.add_placeholder(event, self.epochs_entry, default_epochs))
+
+        # batch size entry 
+        batch_label = ttk.Label(training_options_window, text="Training Batch Size:", style='TLabel')
+        batch_label.pack(pady=5)
+        default_batch = str(self.opt.batch_size)
+        self.batch_entry = tk.Entry(training_options_window, font=('Avenir Next', 14), fg='grey')
+        self.batch_entry.pack(pady=5)
+        self.batch_entry.insert(0, default_batch)
+        self.batch_entry.bind("<FocusIn>", lambda event: self.clear_placeholder(event, self.batch_entry, default_batch))
+        self.batch_entry.bind("<FocusOut>", lambda event: self.add_placeholder(event, self.batch_entry, default_batch))
+
+
+        # Example button to apply options
+        apply_options_button = ttk.Button(training_options_window, text="Apply Options", command=lambda: self.apply_training_options(training_options_window))
+        apply_options_button.pack(pady=10)
+
+    def apply_training_options(self, window):
+        # Implement logic to apply the training options here
+        try:
+            self.opt.embedding_dim = self.emb_size_entry.get()
+            self.opt.n_convolutions = self.num_conv_entry.get()
+            self.opt.readout_layers = self.readout_entry.get()
+            self.opt.epochs = self.epochs_entry.get()
+            self.opt.batch_size = self.batch_entry.get()
+        except ValueError:
+            self.num_epochs = None
+        window.destroy()
+
 
     def apply_GNN_train_options(self, window):
         try:
@@ -203,7 +304,7 @@ class Application(tk.Tk):
             label_data = ttk.Label(train_tml_window, text="Select the csv file with the data:", style='TLabel')
             label_data.pack(pady=10)
 
-            self.data_entry = ttk.Entry(train_tml_window, font=('Helvetica', 14), width=50)
+            self.data_entry = ttk.Entry(train_tml_window, font=('Avenir Next', 14), width=50)
             self.data_entry.pack(pady=5)
 
             browse_button = ttk.Button(train_tml_window, text="Browse", command=self.browse_file)
@@ -213,7 +314,7 @@ class Application(tk.Tk):
             log_dir_label = ttk.Label(train_tml_window, text="Log directory:", style='TLabel')
             log_dir_label.pack(pady=10)
 
-            self.log_dir_entry = ttk.Entry(train_tml_window, font=('Helvetica', 14), width=50)
+            self.log_dir_entry = ttk.Entry(train_tml_window, font=('Avenir Next', 14), width=50)
             self.log_dir_entry.pack(pady=5)
 
             log_dir_button = ttk.Button(train_tml_window, text="Browse", command=self.browse_directory)
@@ -223,7 +324,7 @@ class Application(tk.Tk):
             log_dir_name_label = ttk.Label(train_tml_window, text="Log directory name:", style='TLabel')
             log_dir_name_label.pack(pady=10)
 
-            self.log_dir_name_entry = ttk.Entry(train_tml_window, font=('Helvetica', 14), width=50)
+            self.log_dir_name_entry = ttk.Entry(train_tml_window, font=('Avenir Next', 14), width=50)
             self.log_dir_name_entry.pack(pady=5)
 
             # Denoise molecule label
@@ -523,57 +624,86 @@ class Application(tk.Tk):
         window.destroy()
 
     def run_experiments(self):
-        opt = BaseOptions().parse()
-        
 
         if self.train_GNN_var.get():
             path, filename = os.path.split(self.data_entry)
-            opt.root = os.path.dirname(path)
-            opt.filename = filename
-            opt.log_dir_results = self.log_dir_name_entry
-            train_network_nested_cv(opt)
+            self.opt.root = os.path.dirname(path)
+            self.opt.filename = filename
+            self.opt.log_dir_results = os.path.join(self.log_dir_entry, self.log_dir_name_entry)
+
+            self.show_terminal_output()
+            train_network_nested_cv(self.opt)
 
         if self.train_tml_var.get():
             path, filename = os.path.split(self.data_entry_tml)
-            opt.root = os.path.dirname(path)
-            opt.filename = filename
-            opt.log_dir_results = os.path.join(self.log_dir_entry_tml, self.log_dir_name_entry_tml)
-            opt.tml_algorithm = self.train_algorithm_tml
-            train_tml_model_nested_cv(opt)
+            self.opt.root = os.path.dirname(path)
+            self.opt.filename = filename
+            self.opt.log_dir_results = os.path.join(self.log_dir_entry_tml, self.log_dir_name_entry_tml)
+            self.opt.tml_algorithm = self.train_algorithm_tml
+            train_tml_model_nested_cv(self.opt)
 
         if self.predict_unseen_var.get():
             predict_final_test()
 
         if self.compare_models_var.get():
-            plot_results(exp_dir=os.path.join(os.getcwd(), opt.log_dir_results, opt.filename[:-4]))
-            plot_results(exp_dir=os.path.join(os.getcwd(), opt.log_dir_results, 'final_test'))
+            plot_results(exp_dir=os.path.join(os.getcwd(), self.opt.log_dir_results, self.opt.filename[:-4]))
+            plot_results(exp_dir=os.path.join(os.getcwd(), self.opt.log_dir_results, 'final_test'))
 
         
         # Update opt with user-provided denoise_reactions value
         if self.denoise_graph_var.get():
-            opt.denoise_reactions = self.denoise_reactions
-            opt.denoise_mol = self.denoise_mol
-            opt.denoise_based_on = self.denoise_based_on
-            opt.explain_model = [self.outer, self.inner]
-            opt.norm = self.norm
+            self.opt.denoise_reactions = self.denoise_reactions
+            self.opt.denoise_mol = self.denoise_mol
+            self.opt.denoise_based_on = self.denoise_based_on
+            self.opt.explain_model = [self.outer, self.inner]
+            self.opt.norm = self.norm
 
             # Run denoise_graphs
-            denoise_graphs(opt, exp_path=os.path.join(os.getcwd(), opt.log_dir_results, opt.filename[:-4], 'results_GNN'))
+            denoise_graphs(self.opt, exp_path=os.path.join(os.getcwd(), self.opt.log_dir_results, self.opt.filename[:-4], 'results_GNN'))
 
 
         if self.GNNExplainer_var.get():
             # Update opt with user-provided explain_reactions value
-            opt.explain_model = [self.explain_outer, self.explain_inner]
+            self.opt.explain_model = [self.explain_outer, self.explain_inner]
             # Run GNNExplainer_node_feats
-            GNNExplainer_node_feats(opt, exp_path=os.path.join(os.getcwd(), opt.log_dir_results, opt.filename[:-4], 'results_GNN'))
+            GNNExplainer_node_feats(self.opt, exp_path=os.path.join(os.getcwd(), self.opt.log_dir_results, self.opt.filename[:-4], 'results_GNN'))
 
 
         if self.shapley_analysis_var.get():
             # Update opt with user-provided shap_reactions value
-            opt.shap_index = self.shap_reactions
-            opt.explain_model = [self.shap_outer, self.shap_inner]
+            self.opt.shap_index = self.shap_reactions
+            self.opt.explain_model = [self.shap_outer, self.shap_inner]
             # Run shapley_analysis
-            shapley_analysis(opt, exp_path=os.path.join(os.getcwd(), opt.log_dir_results, opt.filename[:-4], 'results_GNN'))
+            shapley_analysis(self.opt, exp_path=os.path.join(os.getcwd(), self.opt.log_dir_results, self.opt.filename[:-4], 'results_GNN'))
+
+
+
+
+    def show_terminal_output(self):
+        terminal_window = tk.Toplevel(self)
+        terminal_window.title("Terminal Output")
+        terminal_window.geometry("600x400")
+
+        text_widget = tk.Text(terminal_window, wrap='word', font=('Helvetica', 12))
+        text_widget.pack(expand=True, fill='both')
+
+        # Redirect stdout and stderr
+        sys.stdout = RedirectText(text_widget)
+        sys.stderr = RedirectText(text_widget)
+
+
+
+class RedirectText:
+    def __init__(self, text_widget):
+        self.text_widget = text_widget
+
+    def write(self, string):
+        self.text_widget.insert(tk.END, string)
+        self.text_widget.see(tk.END)
+        self.text_widget.update_idletasks()
+
+    def flush(self):
+        pass  # No need to implement flush for this example
 
 
 if __name__ == "__main__":
