@@ -4,7 +4,7 @@ import tkinter.filedialog as fd
 from options.base_options import BaseOptions
 import os
 import sys
-
+import pandas as pd
 # Experiment scripts
 from scripts_experiments.train_GNN import train_network_nested_cv
 from scripts_experiments.train_TML import train_tml_model_nested_cv
@@ -45,6 +45,8 @@ class Application(tk.Tk):
         self.data_entry = None
         self.log_dir_entry = None
         self.log_dir_name_entry = None
+
+        self.smiles_cols_GNN = {}
 
         # train_tml variables
         self.data_entry_tml = None
@@ -140,6 +142,64 @@ class Application(tk.Tk):
             self.data_entry.delete(0, tk.END)
             self.data_entry.insert(0, file_path)
 
+
+    def populate_columns_listbox(self, file_path):
+        df = pd.read_csv(file_path)
+        self.columns_listbox.delete(0, tk.END)
+        for col in df.columns:
+            self.columns_listbox.insert(tk.END, col)
+
+    def show_column_selection(self,):
+        selected_file = self.data_entry.get()
+        if selected_file:
+            df = pd.read_csv(selected_file)
+            column_names = list(df.columns)
+
+            # Create a scrollable frame for checkboxes
+            column_selection_window = tk.Toplevel(self)
+            column_selection_window.title("Select Columns")
+            column_selection_window.geometry("300x400")
+            column_selection_window.configure(bg='#f0f0f0')
+
+            # Create a frame to hold checkboxes
+            scrollbar_frame = tk.Frame(column_selection_window)
+            scrollbar_frame.pack(fill="both", expand=True)
+
+            # Create a vertical scrollbar
+            scrollbar = tk.Scrollbar(scrollbar_frame, orient="vertical")
+            scrollbar.pack(side="right", fill="y")
+
+            # Create the canvas for scrollable content
+            scrollable_canvas = tk.Canvas(scrollbar_frame, yscrollcommand=scrollbar.set)
+            scrollable_canvas.pack(side="left", fill="both", expand=True)
+
+            # Inner frame to hold checkboxes (placed on the canvas)
+            inner_frame = tk.Frame(scrollable_canvas, bg='#f0f0f0')
+            scrollable_canvas.create_window((0, 0), window=inner_frame, anchor='nw')
+
+            self.col_vars_dict = {}
+            for col in column_names:
+                var = tk.BooleanVar()
+                chk = tk.Checkbutton(inner_frame, text=col, variable=var, font=('Avenir Next', 12), bg='#f0f0f0')
+                chk.pack(anchor='w')
+                self.col_vars_dict[col] = var
+
+            # Apply button (remains outside the scrollable area)
+            apply_button = ttk.Button(column_selection_window, text="Apply", command=column_selection_window.destroy)
+            apply_button.pack(pady=10)
+
+            # Configure scrollbar with canvas content
+            scrollbar.config(command=scrollable_canvas.yview)
+            inner_frame.bind("<Configure>", lambda e: scrollable_canvas.configure(scrollregion=scrollable_canvas.bbox("all")))
+
+            # Bind mouse wheel event for scrolling
+            scrollable_canvas.bind("<MouseWheel>", self._on_mouse_wheel)
+
+        def _on_mouse_wheel(self, event):
+            # Adjust scroll amount based on event.delta
+            scrollable_canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+
+
     def browse_directory(self):
         dir_path = fd.askdirectory()
         if dir_path:
@@ -172,8 +232,12 @@ class Application(tk.Tk):
             self.data_entry = ttk.Entry(train_GNN_window, font=('Avenir Next', 14), width=50)
             self.data_entry.pack(pady=5)
 
-            browse_button = ttk.Button(train_GNN_window, text="Browse", command=self.browse_file)
+            browse_button = ttk.Button(train_GNN_window, text="Browse files", command=self.browse_file)
             browse_button.pack(pady=5)
+
+            # Placeholder for columns selection dropdown
+            self.columns_button = ttk.Button(train_GNN_window, text="Select SMILES Columns", command=self.show_column_selection)
+            self.columns_button.pack(pady=10)
 
             # Log directory
             log_dir_label = ttk.Label(train_GNN_window, text="Log directory:", style='TLabel')
@@ -286,6 +350,7 @@ class Application(tk.Tk):
             self.data_entry = self.data_entry.get()
             self.log_dir_entry = self.log_dir_entry.get()
             self.log_dir_name_entry = self.log_dir_name_entry.get()
+            self.opt.mol_cols = [col for col, var in self.col_vars_dict.items() if var.get()]
 
         except ValueError:
             self.denoise_reactions = None
