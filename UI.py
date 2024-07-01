@@ -690,13 +690,13 @@ class Application(tk.Tk):
 
     def run_experiments(self):
 
+        self.show_terminal_output()
+
         if self.train_GNN_var.get():
             path, filename = os.path.split(self.data_entry)
             self.opt.root = os.path.dirname(path)
             self.opt.filename = filename
             self.opt.log_dir_results = os.path.join(self.log_dir_entry, self.log_dir_name_entry)
-
-            self.show_terminal_output()
             train_network_nested_cv(self.opt)
 
         if self.train_tml_var.get():
