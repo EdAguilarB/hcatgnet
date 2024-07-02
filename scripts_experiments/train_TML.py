@@ -1,5 +1,4 @@
 import os
-from options.base_options import BaseOptions
 import pandas as pd
 from utils.utils_model import choose_model, hyperparam_tune, load_variables, \
     split_data, tml_report, network_outer_report
@@ -7,15 +6,9 @@ from sklearn.metrics import mean_squared_error
 from math import sqrt
 
 
-def train_tml_model_nested_cv() -> None:
-
-    opt = BaseOptions().parse()
+def train_tml_model_nested_cv(opt) -> None:
 
     print('Initialising chiral ligands selectivity prediction using a traditional ML approach.')
-    
-    # Get the current working directory 
-    # Get the current working directory
-    current_dir = os.getcwd()
 
     # Load the data
     filename = opt.filename[:-4] + '_folds' + opt.filename[-4:]
@@ -73,7 +66,7 @@ def train_tml_model_nested_cv() -> None:
                   format(outer, real_inner, counter, TOT_RUNS, train_rmse, val_rmse, test_rmse) )
             
             # Generate a report of the model performance
-            tml_report(log_dir=f"{current_dir}/{opt.log_dir_results}/{opt.filename[:-4]}/results_{opt.tml_algorithm}/",
+            tml_report(log_dir=f"{opt.log_dir_results}/{opt.filename[:-4]}/results_{opt.tml_algorithm}/",
                        data = (train_set, val_set, test_set),
                        outer = outer,
                        inner = real_inner,
@@ -89,7 +82,7 @@ def train_tml_model_nested_cv() -> None:
 
         # Generate a report of the model performance for the outer/test fold
         network_outer_report(
-            log_dir=f"{current_dir}/{opt.log_dir_results}/{opt.filename[:-4]}/results_{opt.tml_algorithm}/Fold_{outer}_test_set/",
+            log_dir=f"{opt.log_dir_results}/{opt.filename[:-4]}/results_{opt.tml_algorithm}/Fold_{outer}_test_set/",
             outer=outer,
         )
 

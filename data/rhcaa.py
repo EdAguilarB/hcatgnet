@@ -207,7 +207,7 @@ class rhcaa_diene(reaction_graph):
 
         test_idx = []
 
-        for _, test in folds.split(dataset['ER1'], dataset['category']):
+        for _, test in folds.split(np.zeros(len(dataset)), dataset['category']):
             test_idx.append(test)
 
         index_dict = {index: list_num for list_num, index_list in enumerate(test_idx) for index in index_list}

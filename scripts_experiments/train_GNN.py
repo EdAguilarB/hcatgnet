@@ -1,4 +1,3 @@
-from options.base_options import BaseOptions
 from data.rhcaa import rhcaa_diene
 import sys
 import os
@@ -12,12 +11,9 @@ from icecream import ic
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 
-def train_network_nested_cv() -> None:
+def train_network_nested_cv(opt) -> None:
 
     print('Initialising chiral diene ligands experiment using early stopping')
-
-    # Get hyperparameters
-    opt = BaseOptions().parse()
 
     # Get the current working directory
     current_dir = os.getcwd()
@@ -116,7 +112,7 @@ def train_network_nested_cv() -> None:
 
             # Report the model performance
             network_report(
-                log_dir=f"{current_dir}/{opt.log_dir_results}/{opt.filename[:-4]}/results_GNN/",
+                log_dir=f"{opt.log_dir_results}/{opt.filename[:-4]}/results_GNN/",
                 loaders=(train_loader, val_loader, test_loader),
                 outer=outer,
                 inner=real_inner,
@@ -134,7 +130,7 @@ def train_network_nested_cv() -> None:
         print('Generating outer report')
 
         network_outer_report(
-            log_dir=f"{current_dir}/{opt.log_dir_results}/{opt.filename[:-4]}/results_GNN/Fold_{outer}_test_set/",
+            log_dir=f"{opt.log_dir_results}/{opt.filename[:-4]}/results_GNN/Fold_{outer}_test_set/",
             outer=outer,
         )
 
