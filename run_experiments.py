@@ -17,11 +17,12 @@ def run_all_exp():
         train_tml_model_nested_cv(opt)
 
     if opt.predict_unseen:
-        predict_final_test()
+        #predict_final_test()
+        pass
 
     if opt.compare_models:
         plot_results(exp_dir=os.path.join(os.getcwd(), opt.log_dir_results, opt.filename[:-4]))
-        plot_results(exp_dir=os.path.join(os.getcwd(), opt.log_dir_results, 'final_test'))
+        #plot_results(exp_dir=os.path.join(os.getcwd(), opt.log_dir_results, 'final_test'))
 
     if opt.denoise_graph:
         denoise_graphs(opt, exp_path=os.path.join(os.getcwd(), opt.log_dir_results, opt.filename[:-4], 'results_GNN'))
