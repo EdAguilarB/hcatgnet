@@ -74,7 +74,7 @@ def plot_results(exp_dir, opt):
 
             results_all = pd.concat([results_all, df_tml], axis=0)
 
-    save_dir = f'{exp_dir}/comparison/GNN_vs_{opt.tml_algorithm}_{opt.descriptors}'
+    save_dir = f'{exp_dir}/comparison/GNN_vs_{opt.tml_algorithm}/{opt.descriptors}'
     os.makedirs(save_dir, exist_ok=True)
     
     mae_mean_gnn = np.array([entry['mean'] for entry in mae_gnn])
@@ -197,5 +197,5 @@ def plot_results(exp_dir, opt):
 
 if __name__ == '__main__':
     opt = BaseOptions().parse()
-    exp_dir = os.path.join(opt.log_dir_results, opt.filename_final_test[:-4])
+    exp_dir = os.path.join(opt.log_dir_results, opt.filename[:-4])
     plot_results(exp_dir, opt)
