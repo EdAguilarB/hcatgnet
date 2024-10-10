@@ -5,24 +5,40 @@ from scripts_experiments.predict_test import predict_final_test
 from scripts_experiments.compare_gnn_tml import plot_results
 from scripts_experiments.explain_gnn import denoise_graphs, GNNExplainer_node_feats, shapley_analysis
 from options.base_options import BaseOptions
+import os
 
 def run_all_exp():
 
     opt = BaseOptions().parse()
 
     if opt.train_GNN:
-        train_network_nested_cv(opt)
+        if not os.path.exists(os.path.join(opt.log_dir_results, opt.filename[:-4], 'results_GNN')):
+            train_network_nested_cv(opt)
+        else:
+            print('GNN model has already been trained')
     
     if opt.train_tml:
-        train_tml_model_nested_cv(opt)
+        if not os.path.exists(os.path.join(opt.log_dir_results, opt.filename[:-4], f'results_{opt.tml_algorithm}')):
+            train_tml_model_nested_cv(opt)
+        else:
+            print('TML model has already been trained')
 
     if opt.predict_unseen:
-        #predict_final_test()
-        pass
+        if not os.path.exists(os.path.join(opt.log_dir_results, opt.filename_final_test[:-4])):
+            predict_final_test(opt)
+        else:
+            print('Prediction of unseen data has already been done')
 
     if opt.compare_models:
-        plot_results(exp_dir=os.path.join(os.getcwd(), opt.log_dir_results, opt.filename[:-4]))
-        #plot_results(exp_dir=os.path.join(os.getcwd(), opt.log_dir_results, 'final_test'))
+        if not os.path.exists(os.path.join(opt.log_dir_results, opt.filename[:-4], f'GNN_vs_{opt.tml_algorithm}')):
+            plot_results(exp_dir=os.path.join(os.getcwd(), opt.log_dir_results, opt.filename[:-4]))
+        else:
+            print(f'GNN and TML ({opt.tml_algorithm}) Models have already been compared for {opt.filename[:-4]} dataset.')
+
+        if not os.path.exists(os.path.join(opt.log_dir_results, opt.filename_final_test[:-4], f'GNN_vs_{opt.tml_algorithm}')):
+            plot_results(exp_dir=os.path.join(os.getcwd(), opt.log_dir_results, opt.filename_final_test[:-4]))
+        else:
+            print(f'GNN and TML ({opt.tml_algorithm}) Models have already been compared for {opt.filename_final_test[:-4]} dataset.')
 
     if opt.denoise_graph:
         denoise_graphs(opt, exp_path=os.path.join(os.getcwd(), opt.log_dir_results, opt.filename[:-4], 'results_GNN'))
