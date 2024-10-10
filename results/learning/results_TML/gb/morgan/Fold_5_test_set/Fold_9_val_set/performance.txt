@@ -1,0 +1,40 @@
+10-Oct-2024, 13:06:23
+---------------------------------------------------------
+Traditional ML algorithm Performance
+Dataset Size = 668
+***************
+Training set
+Set size = 535
+R2 = 1.000
+MAE = 0.085
+RMSE = 0.127
+Mean Bias Error = 0.000
+Mean Absolute Percentage Error = 0.013
+Error Standard Deviation = 0.127
+***************
+Validation set
+Set size = 66
+R2 = 0.884
+MAE = 2.019
+RMSE = 3.088
+Mean Bias Error = 0.023
+Mean Absolute Percentage Error = 0.303
+Error Standard Deviation = 3.088
+***************
+Test set
+Set size = 67
+Accuracy = 0.970
+Precision = 0.971
+Recall = 0.971
+F1 = 0.971
+Test Set Total Correct Face of Addition Predictions = 65
+R2 = 0.903
+MAE = 1.733
+RMSE = 2.842
+Mean Bias Error = -0.247
+Mean Absolute Percentage Error = 0.247
+Error Standard Deviation = 2.831
+---------------------------------------------------------
+OUTLIERS (TEST SET)
+01) 110    Error: -11.74 kJ/mol    (index=15)
+02) 394    Error: 12.66 kJ/mol    (index=39)

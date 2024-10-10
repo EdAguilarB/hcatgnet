@@ -16,6 +16,9 @@ from utils.plot_utils import *
 from icecream import ic
 from sklearn.preprocessing import RobustScaler
 
+from rdkit import Chem
+from rdkit.Chem import AllChem
+
 
 def calculate_metrics(y_true:list, y_predicted: list,  task = 'r'):
 
@@ -373,9 +376,7 @@ def extract_metrics(file):
 ######################################
 ######################################
 
-def load_variables(path:str, descriptors:list):
-
-    data = pd.read_csv(path)
+def load_variables(data, descriptors:list):
 
     data = data.filter(descriptors)
 
@@ -467,6 +468,50 @@ def predict_tml(model, data:pd.DataFrame, descriptors:list):
     idx = list(data['index'])
 
     return np.array(y_pred), np.array(y_true), np.array(idx)
+
+
+def calculate_morgan_fingerprints(df, smiles_cols, radius=2, n_bits=2048, variance_threshold=0.01):
+    """
+    Featurize molecules in a pandas DataFrame using Morgan fingerprints, and remove columns with low variance.
+    
+    Parameters:
+    - df: pandas DataFrame, containing SMILES strings.
+    - smiles_cols: list of column names that contain SMILES strings.
+    - radius: int, optional, the radius for the Morgan fingerprint (default is 2).
+    - n_bits: int, optional, the length of the fingerprint vector (default is 2048).
+    - variance_threshold: float, optional, the threshold below which fingerprint bits will be removed for low variance (default is 0.01).
+    
+    Returns:
+    - pd.DataFrame: a DataFrame with the Morgan fingerprints as features, filtered for low variance bits.
+    """
+    def smiles_to_fingerprint(smiles):
+        """Convert a SMILES string to a Morgan fingerprint."""
+        mol = Chem.MolFromSmiles(smiles)
+        if mol:
+            fp = AllChem.GetMorganFingerprintAsBitVect(mol, radius, nBits=n_bits, useChirality=True)
+            return np.array(fp)
+        else:
+            return np.zeros(n_bits)  # Return a zero array if the SMILES is invalid
+
+    # Initialize an empty DataFrame to store the fingerprints
+    fingerprint_df = pd.DataFrame()
+
+    for col in smiles_cols:
+        # Apply fingerprint calculation for each SMILES column
+        fp_array = df[col].apply(smiles_to_fingerprint)
+        fp_df = pd.DataFrame(fp_array.tolist(), index=df.index, columns=[f"{col}_fp_{i}" for i in range(n_bits)])
+
+        # Concatenate the new fingerprints with the main dataframe
+        fingerprint_df = pd.concat([fingerprint_df, fp_df], axis=1)
+
+    # Calculate the variance of each fingerprint column
+    variances = fingerprint_df.var()
+
+    # Filter out columns with low variance
+    selected_columns = variances[variances > variance_threshold].index
+    filtered_fingerprint_df = fingerprint_df[selected_columns]
+
+    return filtered_fingerprint_df
 
 
 def tml_report(log_dir,
