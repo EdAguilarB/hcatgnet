@@ -55,7 +55,7 @@ class BaseOptions:
             type=self.str2bool, 
             nargs='?', 
             const=True, 
-            default=True, 
+            default=False, 
             help='Whether to explain the GNN or not'
             )
 
@@ -64,7 +64,7 @@ class BaseOptions:
             type=self.str2bool, 
             nargs='?', 
             const=True, 
-            default=True, 
+            default=False, 
             help='Whether to explain the GNN or not'
             )
 
@@ -73,7 +73,7 @@ class BaseOptions:
             type=self.str2bool, 
             nargs='?', 
             const=True, 
-            default=True, 
+            default=False, 
             help='Whether to explain the GNN or not'
             )
         

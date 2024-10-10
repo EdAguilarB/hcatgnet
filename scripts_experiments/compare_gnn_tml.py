@@ -1,21 +1,26 @@
 import os
-from options.base_options import BaseOptions
+import sys
 import pandas as pd
 import numpy as np
-from utils.utils_model import  extract_metrics
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score, \
     accuracy_score, precision_score, recall_score
-from utils.plot_utils import create_bar_plot, create_violin_plot, create_strip_plot, \
-    create_parity_plot
 from math import sqrt
 
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.abspath(os.path.join(current_dir, '..'))
+sys.path.append(parent_dir)
 
-def plot_results(exp_dir):
+from options.base_options import BaseOptions
+from utils.utils_model import  extract_metrics
+from utils.plot_utils import create_bar_plot, create_violin_plot, create_strip_plot, \
+    create_parity_plot
 
-    opt = BaseOptions().parse()
+
+def plot_results(exp_dir, opt):
+
 
     experiments_gnn = os.path.join(exp_dir, 'results_GNN')
-    experiments_tml = os.path.join(exp_dir, f'results_{opt.tml_algorithm}')
+    experiments_tml = os.path.join(exp_dir, 'results_TML', opt.tml_algorithm, opt.descriptors)
 
     r2_gnn, mae_gnn, rmse_gnn = [], [], []
     accuracy_gnn, precision_gnn, recall_gnn = [], [], []
@@ -69,7 +74,7 @@ def plot_results(exp_dir):
 
             results_all = pd.concat([results_all, df_tml], axis=0)
 
-    save_dir = f'{exp_dir}/GNN_vs_{opt.tml_algorithm}'
+    save_dir = f'{exp_dir}/comparison/GNN_vs_{opt.tml_algorithm}/{opt.descriptors}'
     os.makedirs(save_dir, exist_ok=True)
     
     mae_mean_gnn = np.array([entry['mean'] for entry in mae_gnn])
@@ -187,3 +192,10 @@ def plot_results(exp_dir):
     print('R2: {:.3f}'.format(r2_score(tml_predictions['real_ddG'], tml_predictions['predicted_ddG'])))
     print('MAE: {:.3f}'.format(mean_absolute_error(tml_predictions['real_ddG'], tml_predictions['predicted_ddG'])))
     print('RMSE: {:.3f} \n'.format(sqrt(mean_squared_error(tml_predictions['real_ddG'], tml_predictions['predicted_ddG']))))
+
+
+
+if __name__ == '__main__':
+    opt = BaseOptions().parse()
+    exp_dir = os.path.join(opt.log_dir_results, opt.filename[:-4])
+    plot_results(exp_dir, opt)
