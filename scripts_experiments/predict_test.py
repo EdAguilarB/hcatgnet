@@ -10,9 +10,8 @@ from data.rhcaa import rhcaa_diene
 
 from icecream import ic
 
-def predict_final_test() -> None:
+def predict_final_test(opt) -> None:
 
-    opt = BaseOptions().parse()
 
     # Get the current working directory
     current_dir = os.getcwd()
@@ -27,8 +26,8 @@ def predict_final_test() -> None:
     # Load the data for tml
     test_set = pd.read_csv(f'{opt.root_final_test}/raw/{opt.filename_final_test}')
 
-    experiments_gnn = os.path.join(current_dir, opt.log_dir_results, 'final_test', 'results_GNN')
-    experiments_tml = os.path.join(current_dir, opt.log_dir_results, 'final_test', f'results_{opt.tml_algorithm}')
+    experiments_gnn = os.path.join(current_dir, opt.log_dir_results, opt.filename_final_test[:-4], 'results_GNN')
+    experiments_tml = os.path.join(current_dir, opt.log_dir_results, opt.filename_final_test[:-4], f'results_{opt.tml_algorithm}')
 
     for outer in range(1, opt.folds+1):
         print('Analysing models trained using as test set {}'.format(outer))
