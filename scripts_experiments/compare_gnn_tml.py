@@ -197,5 +197,5 @@ def plot_results(exp_dir, opt):
 
 if __name__ == '__main__':
     opt = BaseOptions().parse()
-    exp_dir = os.path.join(opt.log_dir_results, opt.filename[:-4])
+    exp_dir = os.path.join(opt.log_dir_results, opt.filename_final_test[:-4])
     plot_results(exp_dir, opt)
