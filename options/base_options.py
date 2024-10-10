@@ -290,6 +290,13 @@ class BaseOptions:
             default='gb',
             help='Traditional ML algorithm to use. Allowed values: lr for linear regression, gb for gradient boosting, or rf for random forest.',
             )
+        
+        self.parser.add_argument(
+            '--descriptors',
+            type=str,
+            default='bespoke',
+            help='Type of descriptors to use. Allowed values: bespoke or morgan',
+            )
 
         ###########################################
         ############Explain Options GNN###########
