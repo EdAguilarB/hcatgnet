@@ -1,9 +1,16 @@
 import os
+import sys
 import pandas as pd
-from utils.utils_model import choose_model, hyperparam_tune, load_variables, \
-    split_data, tml_report, network_outer_report
 from sklearn.metrics import mean_squared_error
 from math import sqrt
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.abspath(os.path.join(current_dir, '..'))
+sys.path.append(parent_dir)
+
+from utils.utils_model import choose_model, hyperparam_tune, load_variables, \
+    split_data, tml_report, network_outer_report, calculate_morgan_fingerprints
+from options.base_options import BaseOptions
 
 
 def train_tml_model_nested_cv(opt) -> None:
@@ -13,10 +20,24 @@ def train_tml_model_nested_cv(opt) -> None:
     # Load the data
     filename = opt.filename[:-4] + '_folds' + opt.filename[-4:]
     data = pd.read_csv(f'{opt.root}/raw/{filename}')
-    data = data[['LVR1', 'LVR2', 'LVR3', 'LVR4', 'LVR5', 'LVR6', 'LVR7', 'VB', 'ER1', 'ER2', 'ER3', 'ER4', 'ER5', 'ER6',
-               'ER7', 'SStoutR1', 'SStoutR2', 'SStoutR3', 'SStoutR4', 'temp', 'ddG', 'fold', 'index']]
-    descriptors = ['LVR1', 'LVR2', 'LVR3', 'LVR4', 'LVR5', 'LVR6', 'LVR7', 'VB', 'ER1', 'ER2', 'ER3', 'ER4', 'ER5', 'ER6',
-               'ER7', 'SStoutR1', 'SStoutR2', 'SStoutR3', 'SStoutR4', 'temp']
+
+    if opt.descriptors == 'bespoke':
+        data = data[['LVR1', 'LVR2', 'LVR3', 'LVR4', 'LVR5', 'LVR6', 'LVR7', 'VB', 'ER1', 'ER2', 'ER3', 'ER4', 'ER5', 'ER6',
+                'ER7', 'SStoutR1', 'SStoutR2', 'SStoutR3', 'SStoutR4', 'temp', 'ddG', 'fold', 'index']]
+        descriptors = ['LVR1', 'LVR2', 'LVR3', 'LVR4', 'LVR5', 'LVR6', 'LVR7', 'VB', 'ER1', 'ER2', 'ER3', 'ER4', 'ER5', 'ER6',
+                'ER7', 'SStoutR1', 'SStoutR2', 'SStoutR3', 'SStoutR4', 'temp']
+        
+    elif opt.descriptors == 'morgan':
+        data = data[opt.mol_cols + ['temp', 'ddG', 'fold', 'index']]
+        fingerprints = calculate_morgan_fingerprints(df = data, smiles_cols=opt.mol_cols, variance_threshold=.01)
+        data = data.drop(opt.mol_cols, axis=1)
+        descriptors = ['temp'] + fingerprints.columns.tolist() 
+        print(f'Using {len(descriptors)} fingerprints')
+        data = pd.concat([data, fingerprints], axis = 1)
+
+    else:
+        raise ValueError('Descriptors not recognised. Please choose between bespoke or morgan')
+
     
     # Nested cross validation
     ncv_iterator = split_data(data)
@@ -29,7 +50,7 @@ def train_tml_model_nested_cv(opt) -> None:
 
     # Hyperparameter optimisation
     print("Hyperparameter optimisation starting...")
-    X, y, _ = load_variables(f'{opt.root}/raw/{opt.filename}', descriptors=descriptors+['ddG'])
+    X, y, _ = load_variables(data=data, descriptors=descriptors+['ddG'])
     best_params = hyperparam_tune(X, y, choose_model(best_params=None, algorithm = opt.tml_algorithm), opt.global_seed)
     print('Hyperparameter optimisation has finalised')
     print("Training starting...")
@@ -62,11 +83,11 @@ def train_tml_model_nested_cv(opt) -> None:
             preds = model.predict(test_set[descriptors])
             test_rmse = sqrt(mean_squared_error(test_set['ddG'], preds))
 
-            print('Outer: {} | Inner: {} | Run {}/{} | Train RMSE {:.3f} % | Val RMSE {:.3f} % | Test RMSE {:.3f} %'.\
+            print('Outer: {} | Inner: {} | Run {}/{} | Train RMSE {:.3f} kJ/mol | Val RMSE {:.3f} kJ/mol | Test RMSE {:.3f} kJ/mol'.\
                   format(outer, real_inner, counter, TOT_RUNS, train_rmse, val_rmse, test_rmse) )
             
             # Generate a report of the model performance
-            tml_report(log_dir=f"{opt.log_dir_results}/{opt.filename[:-4]}/results_{opt.tml_algorithm}/",
+            tml_report(log_dir=f"{opt.log_dir_results}/{opt.filename[:-4]}/results_TML/{opt.tml_algorithm}/{opt.descriptors}/",
                        data = (train_set, val_set, test_set),
                        outer = outer,
                        inner = real_inner,
@@ -82,10 +103,15 @@ def train_tml_model_nested_cv(opt) -> None:
 
         # Generate a report of the model performance for the outer/test fold
         network_outer_report(
-            log_dir=f"{opt.log_dir_results}/{opt.filename[:-4]}/results_{opt.tml_algorithm}/Fold_{outer}_test_set/",
+            log_dir=f"{opt.log_dir_results}/{opt.filename[:-4]}/results_TML/{opt.tml_algorithm}/{opt.descriptors}/Fold_{outer}_test_set/",
             outer=outer,
         )
 
         print('---------------------------------')
         
     print('All runs completed')
+
+
+if __name__ == "__main__":
+    opt = BaseOptions().parse()
+    train_tml_model_nested_cv(opt)
