@@ -50,7 +50,8 @@ class rhcaa_biaryl(reaction_graph):
             'P',
             'K',
             'Li',
-            'I']
+            'I',
+            'Na']
         
         return elements
         
