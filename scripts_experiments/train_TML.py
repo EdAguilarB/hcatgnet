@@ -34,6 +34,17 @@ def train_tml_model_nested_cv(opt) -> None:
         descriptors = ['temp'] + fingerprints.columns.tolist() 
         print(f'Using {len(descriptors)} fingerprints')
         data = pd.concat([data, fingerprints], axis = 1)
+    
+    elif opt.descriptors == 'circus_fp':
+        data = data[opt.mol_cols + ['temp', 'ddG', 'fold', 'index']]
+        if opt.filename == 'biaryl.csv':
+            fingerprints = pd.read_csv('data/datasets/circus_descriptors/biaryl_circus_descriptors.csv')
+        else:
+            fingerprints = pd.read_csv('data/datasets/circus_descriptors/diene_circus_descriptors.csv')
+        data = data.drop(opt.mol_cols, axis=1)
+        descriptors = ['temp'] + fingerprints.columns.tolist()
+        print(f'Using {len(descriptors)} fingerprints')
+        data = pd.merge(data, fingerprints, left_index=True, right_index=True)
 
     else:
         raise ValueError('Descriptors not recognised. Please choose between bespoke or morgan')

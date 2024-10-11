@@ -9,6 +9,7 @@ import pandas as pd
 import os
 from seaborn import violinplot, stripplot, jointplot, barplot
 from math import sqrt
+from scipy.stats import t
 from icecream import ic
 
 def create_st_parity_plot(real, predicted, figure_name, save_path=None):
@@ -201,6 +202,33 @@ def create_bar_plot(means:tuple, stds:tuple, min:float, max:float, metric:str, s
     print('Plot {}_GNN_vs_TML has been saved in the directory {}'.format(metric,save_path))
 
     plt.clf()
+
+    results_df = pd.DataFrame({
+        'Fold': folds, 
+        'Mean GNN': mean_gnn,
+        'Std GNN': std_gnn,
+        'MeanTML': mean_tml,
+        'Std TML': std_tml,
+        'p-value': np.nan,
+        'Significance': np.nan
+        })
+
+    # Calculate t-statistic and p-value for each fold
+    for i in range(len(folds)):
+        se_gnn = std_gnn[i] / np.sqrt(len(folds))
+        se_tml = std_tml[i] / np.sqrt(len(folds))
+        se_diff = np.sqrt(se_gnn**2 + se_tml**2)
+        t_stat = (mean_gnn[i] - mean_tml[i]) / se_diff
+        df = (se_gnn**2 + se_tml**2)**2 / (se_gnn**4 / (len(folds) - 1) + se_tml**4 / (len(folds) - 1))
+        p_value = 2 * t.sf(np.abs(t_stat), df)
+        significant_diff = 'Yes' if p_value < 0.05 else 'No'
+        
+        results_df.at[i, 'p-value'] = p_value
+        results_df.at[i, 'Significant Difference'] = significant_diff
+
+    # Save the results to a CSV file
+    results_df.to_csv(os.path.join(save_path, f'{metric}_GNN_vs_TML.csv'), index=False)
+    print(f'CSV for {metric}_GNN_vs_TML has been saved in the directory {save_path}')
 
 
 def create_violin_plot(data, save_path:str):
