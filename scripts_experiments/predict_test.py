@@ -27,7 +27,7 @@ def predict_final_test(opt) -> None:
     test_loader = DataLoader(final_test, shuffle=False)
 
     # Load the data for tml
-    test_set = pd.read_csv(f'{opt.root_final_test}/raw/{opt.filename_final_test}')
+    test_set = pd.read_csv(f'{opt.root_final_test}/raw/{opt.filename_final_test}', index_col=0)
 
     if opt.descriptors == 'bespoke':
         descriptors = ['LVR1', 'LVR2', 'LVR3', 'LVR4', 'LVR5', 'LVR6', 'LVR7', 'VB', 'ER1', 'ER2', 'ER3', 'ER4', 'ER5', 'ER6',
@@ -35,7 +35,10 @@ def predict_final_test(opt) -> None:
     elif opt.descriptors == 'morgan':
         fingerprints = calculate_morgan_fingerprints(df = test_set, smiles_cols=opt.mol_cols, variance_threshold=0)
         test_set = pd.concat([test_set, fingerprints], axis = 1)
-
+    elif opt.descriptors == 'circus_fp':
+        fingerprints = pd.read_csv('data/datasets/circus_descriptors/diene_circus_descriptors.csv')
+        test_set = pd.merge(test_set, fingerprints, left_index=True, right_index=True)
+        descriptors = ['temp'] + fingerprints.columns.tolist()
 
 
     experiments_gnn = os.path.join(current_dir, opt.log_dir_results, opt.filename_final_test[:-4], 'results_GNN')
