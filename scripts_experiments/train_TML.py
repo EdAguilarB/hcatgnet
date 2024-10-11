@@ -37,7 +37,10 @@ def train_tml_model_nested_cv(opt) -> None:
     
     elif opt.descriptors == 'circus_fp':
         data = data[opt.mol_cols + ['temp', 'ddG', 'fold', 'index']]
-        fingerprints = pd.read_csv('data/datasets/circus_descriptors/diene_circus_descriptors.csv')
+        if opt.filename == 'biaryl.csv':
+            fingerprints = pd.read_csv('data/datasets/circus_descriptors/biaryl_circus_descriptors.csv')
+        else:
+            fingerprints = pd.read_csv('data/datasets/circus_descriptors/diene_circus_descriptors.csv')
         data = data.drop(opt.mol_cols, axis=1)
         descriptors = ['temp'] + fingerprints.columns.tolist()
         print(f'Using {len(descriptors)} fingerprints')
