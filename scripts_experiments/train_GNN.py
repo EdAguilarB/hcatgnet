@@ -29,7 +29,7 @@ def train_network_nested_cv(opt) -> None:
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     # Create the dataset
-    if opt.filename =='l1.csv':
+    if opt.filename =='biaryl.csv':
         data = rhcaa_biaryl(opt, opt.filename, opt.mol_cols, root=opt.root)
     else:
         data = rhcaa_diene(opt, opt.filename, opt.mol_cols, root=opt.root)
