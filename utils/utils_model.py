@@ -465,7 +465,7 @@ def predict_tml(model, data:pd.DataFrame, descriptors:list):
 
     y_pred = model.predict(data[descriptors])
     y_true = list(data['ddG'])
-    idx = list(data['index'])
+    idx = list(data.index)
 
     return np.array(y_pred), np.array(y_true), np.array(idx)
 
