@@ -1,9 +1,16 @@
-from data.rhcaa import rhcaa_diene
 import sys
 import os
 import torch
 import time
 from copy import deepcopy
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.abspath(os.path.join(current_dir, '..'))
+sys.path.append(parent_dir)
+
+from data.rhcaa import rhcaa_diene
+from data.biaryl import rhcaa_biaryl
+from options.base_options import BaseOptions
 from call_methods import make_network, create_loaders
 from utils.utils_model import train_network, eval_network, network_report, network_outer_report
 from icecream import ic
@@ -22,7 +29,10 @@ def train_network_nested_cv(opt) -> None:
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     # Create the dataset
-    data = rhcaa_diene(opt, opt.filename, opt.mol_cols, root=opt.root)
+    if opt.filename =='l1.csv':
+        data = rhcaa_biaryl(opt, opt.filename, opt.mol_cols, root=opt.root)
+    else:
+        data = rhcaa_diene(opt, opt.filename, opt.mol_cols, root=opt.root)
     ic(data[0])
     ic(data[0].x)
 
@@ -140,5 +150,6 @@ def train_network_nested_cv(opt) -> None:
     
 
 if __name__ == "__main__":
-    train_network_nested_cv()
+    opt = BaseOptions().parse() 
+    train_network_nested_cv(opt)
 
