@@ -6,10 +6,18 @@ Rh RhCAA directory contains the results reported and code used to get the result
 
 In order to be able to run the experiments presented in the paper, you must create an environment using the yml file provided.
 
-To reproduce all the experiments reported, just run the command:
+To reproduce all the experiments produced with the default setting, run the command:
 
 <pre>
   <code>
-    python train.py
+    python run_experiments.py
+  </code>
+</pre>
+
+To run the experiments using the CircuS descriptors, run:
+
+<pre>
+  <code>
+    python run_experiments.py --descriptors circus
   </code>
 </pre>
