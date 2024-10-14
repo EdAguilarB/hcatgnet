@@ -28,6 +28,7 @@ HCat-GNet (Homogeneous Catalyst Graph Neural Network) is a cutting-edge, open-so
 To run all experiments as described in our paper
    ```bash
    python run_experiments.py
+```
 
 To run the experiments using the CircuS descriptors
    ```bash
