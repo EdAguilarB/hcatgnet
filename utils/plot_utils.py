@@ -262,6 +262,9 @@ def create_strip_plot(data, save_path:str):
 
 def create_parity_plot(data: pd.DataFrame, save_path:str, tml_algorithm:str):
 
+    data['real_ddG'] = pd.to_numeric(data['real_ddG'], errors='coerce')
+    data['predicted_ddG'] = pd.to_numeric(data['predicted_ddG'], errors='coerce')
+
     results_gnn = data[data['Method'] == 'GNN']
 
     g = jointplot(x="real_ddG", y="predicted_ddG", data=results_gnn,
