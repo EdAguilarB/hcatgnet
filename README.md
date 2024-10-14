@@ -43,8 +43,9 @@ Aguilar-Bejarano, E., et al. "HCat-GNet: An Interpretable Graph Neural Network f
 Distributed under the MIT License. See LICENSE for more information.
 
 ### Contact
-eduardo.aguilar-bejarano@nottingham.ac.uk
-g.figueredo@nottingham.ac.uk
+Main developer: eduardo.aguilar-bejarano@nottingham.ac.uk
+
+Correspongding author: g.figueredo@nottingham.ac.uk
 
 
 
