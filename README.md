@@ -37,8 +37,6 @@ To run the experiments using the CircuS descriptors
    python run_experiments.py --descriptors circus
 ```
 
-### Citation
-Aguilar-Bejarano, E., et al. "HCat-GNet: An Interpretable Graph Neural Network for Catalysis Optimization." (Year). Journal/Conference. DOI.
 
 ### License
 Distributed under the MIT License. See LICENSE for more information.
