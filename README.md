@@ -17,7 +17,8 @@ HCat-GNet (Homogeneous Catalyst Graph Neural Network) is a cutting-edge, open-so
 ### Setup Instructions
 1. **Clone the Repository:**
    ```bash
-   git clone https://github.com/yourusername/HCat-GNet.git
+   git clone https://github.com/EdAguilarB/hcatgnet.git
+
    cd HCat-GNet
 
 2. **Install Dependencies:**
