@@ -74,7 +74,7 @@ class reaction_graph(Dataset):
     def get(self, idx):
 
         molecule = torch.load(os.path.join(self.processed_dir, 
-                                f'reaction_{idx}.pt')) 
+                                f'reaction_{idx}.pt'), weights_only=False) 
         return molecule
     
     def _get_atom_chirality(self, CIP_dict, atom_idx):
