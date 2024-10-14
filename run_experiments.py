@@ -30,13 +30,13 @@ def run_all_exp():
             print('Prediction of unseen data has already been done')
 
     if opt.compare_models:
-        if not os.path.exists(os.path.join(opt.log_dir_results, opt.filename[:-4], f'GNN_vs_{opt.tml_algorithm}')):
+        if not os.path.exists(os.path.join(opt.log_dir_results, opt.filename[:-4], 'comparison', f'GNN_vs_{opt.tml_algorithm}', opt.descriptors)):
             plot_results(os.path.join(opt.log_dir_results, opt.filename[:-4]), opt)
         else:
             print(f'GNN and TML ({opt.tml_algorithm}) Models have already been compared for {opt.filename[:-4]} dataset.')
 
-        if not os.path.exists(os.path.join(opt.log_dir_results, opt.filename_final_test[:-4], f'GNN_vs_{opt.tml_algorithm}')):
-            plot_results(exp_dir=os.path.join(opt.log_dir_results, opt.filename_final_test[:-4]))
+        if not os.path.exists(os.path.join(opt.log_dir_results, opt.filename_final_test[:-4], 'comparison', f'GNN_vs_{opt.tml_algorithm}', opt.descriptors)):
+            plot_results(exp_dir=os.path.join(opt.log_dir_results, opt.filename_final_test[:-4]), opt=opt)
         else:
             print(f'GNN and TML ({opt.tml_algorithm}) Models have already been compared for {opt.filename_final_test[:-4]} dataset.')
 
