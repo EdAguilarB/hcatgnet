@@ -1,23 +1,28 @@
-# HCat-GNet (Homogeneous Catalyst Graph Neural Network)
+# HCat-GNet: Homogeneous Catalyst Graph Neural Network
 
-The **HCat-GNet** (Homogeneous Catalyst Graph Neural Network) is an open-source platform intended for virtual evaluation of homogeneous catalysts selectivity. In principle, the software presented in this repository should be useful and accurate to predict any target property that wants to be optimised in a process accelerated by an homogenous catalyst. 
+## Overview
+HCat-GNet (Homogeneous Catalyst Graph Neural Network) is a cutting-edge, open-source platform designed to facilitate the virtual evaluation and optimization of homogeneous catalysts. Utilizing Graph Neural Networks (GNNs), HCat-GNet predicts the selectivity of homogeneous catalytic reactions based solely on SMILES representations of participant molecules, significantly speeding up the process of ligand optimization in asymmetric catalysis.
 
-Rh RhCAA directory contains the results reported and code used to get the results reported in the paper: **HCat-GNet: An Interpretable Graph Neural Network for Catalysis Optimization**
+## Features
+- **Predictive Accuracy**: Delivers highly accurate predictions of enantioselectivity for metal-ligand catalyzed asymmetric reactions.
+- **Interpretability**: Provides insights into how different ligand modifications affect reaction outcomes, enhancing human understanding and guiding experimental design.
+- **Flexibility**: Agnostic to reaction type, capable of handling a variety of catalytic processes without the need for domain-specific adjustments.
 
-In order to be able to run the experiments presented in the paper, you must create an environment using the yml file provided.
+## Installation
 
-To reproduce all the experiments produced with the default setting, run the command:
+### Prerequisites
+- Python 3.8+
+- Pip (Python package installer)
 
-<pre>
-  <code>
-    python run_experiments.py
-  </code>
-</pre>
+### Setup Instructions
+1. **Clone the Repository:**
+   ```bash
+   git clone https://github.com/yourusername/HCat-GNet.git
+   cd HCat-GNet```
 
-To run the experiments using the CircuS descriptors, run:
 
-<pre>
-  <code>
-    python run_experiments.py --descriptors circus
-  </code>
-</pre>
+
+
+
+
+
