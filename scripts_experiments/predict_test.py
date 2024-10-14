@@ -54,20 +54,20 @@ def predict_final_test(opt) -> None:
 
             model_dir = os.path.join(current_dir, opt.log_dir_results, opt.filename[:-4], 'results_GNN', f'Fold_{outer}_test_set', f'Fold_{real_inner}_val_set')
 
-            model = torch.load(model_dir+'/model.pth')
-            model_params = torch.load(model_dir+'/model_params.pth')
-            train_loader = torch.load(model_dir+'/train_loader.pth')
-            val_loader = torch.load(model_dir+'/val_loader.pth')
+            model = torch.load(model_dir+'/model.pth', weights_only=False)
+            model_params = torch.load(model_dir+'/model_params.pth', weights_only=True)
+            train_loader = torch.load(model_dir+'/train_loader.pth', weights_only=False)
+            val_loader = torch.load(model_dir+'/val_loader.pth', weights_only=False)
 
-            #network_report(log_dir=experiments_gnn,
-            #               loaders=(train_loader, val_loader, test_loader),
-            #               outer=outer,
-            #               inner=real_inner,
-            #               loss_lists=[None, None, None],
-            #               model=model,
-            #               model_params=model_params,
-            #               best_epoch=None,
-            #               save_all=False)
+            network_report(log_dir=experiments_gnn,
+                           loaders=(train_loader, val_loader, test_loader),
+                           outer=outer,
+                           inner=real_inner,
+                           loss_lists=[None, None, None],
+                           model=model,
+                           model_params=model_params,
+                           best_epoch=None,
+                           save_all=False)
             
             tml_dir = os.path.join(current_dir, opt.log_dir_results, opt.filename[:-4], 'results_TML', opt.tml_algorithm, opt.descriptors, f'Fold_{outer}_test_set', f'Fold_{real_inner}_val_set')
 
@@ -96,8 +96,8 @@ def predict_final_test(opt) -> None:
                        descriptors=descriptors)
             
                         
-        #network_outer_report(log_dir=f"{experiments_gnn}/Fold_{outer}_test_set/", 
-        #                     outer=outer)
+        network_outer_report(log_dir=f"{experiments_gnn}/Fold_{outer}_test_set/", 
+                             outer=outer)
         
         network_outer_report(log_dir=f"{experiments_tml}/Fold_{outer}_test_set/", 
                              outer=outer)
