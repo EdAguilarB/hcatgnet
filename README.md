@@ -23,6 +23,7 @@ HCat-GNet (Homogeneous Catalyst Graph Neural Network) is a cutting-edge, open-so
 2. **Install Dependencies:**
    ```bash
    pip install -r requirements.txt
+   ```
 
 ### Usage
 To run all experiments as described in our paper
@@ -33,12 +34,17 @@ To run all experiments as described in our paper
 To run the experiments using the CircuS descriptors
    ```bash
    python run_experiments.py --descriptors circus
+```
 
 ### Citation
 Aguilar-Bejarano, E., et al. "HCat-GNet: An Interpretable Graph Neural Network for Catalysis Optimization." (Year). Journal/Conference. DOI.
 
 ### License
 Distributed under the MIT License. See LICENSE for more information.
+
+### Contact
+eduardo.aguilar-bejarano@nottingham.ac.uk
+g.figueredo@nottingham.ac.uk
 
 
 
