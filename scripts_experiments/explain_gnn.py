@@ -24,16 +24,16 @@ def denoise_graphs(opt, exp_path:str) -> None:
 
     model_path = os.path.join(exp_path, f'Fold_{outer}_test_set', f'Fold_{inner}_val_set')
 
-    train_loader = torch.load(os.path.join(model_path, 'train_loader.pth'))
-    val_loader = torch.load(os.path.join(model_path, 'val_loader.pth'))
-    test_loader = torch.load(os.path.join(model_path, 'test_loader.pth'))
+    train_loader = torch.load(os.path.join(model_path, 'train_loader.pth'), weights_only=False)
+    val_loader = torch.load(os.path.join(model_path, 'val_loader.pth'), weights_only=False)
+    test_loader = torch.load(os.path.join(model_path, 'test_loader.pth'), weights_only=False)
 
     all_data = train_loader.dataset + val_loader.dataset + test_loader.dataset
 
     loader_all = DataLoader(all_data)
 
     model = GCN_explain(opt, n_node_features=all_data[0].num_node_features)
-    model_params = torch.load(os.path.join(model_path, 'model_params.pth'))
+    model_params = torch.load(os.path.join(model_path, 'model_params.pth'), weights_only=True)
     model.load_state_dict(model_params)
 
     explainer = Explainer(
