@@ -1,0 +1,11 @@
+cff-version: 1.0.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Aguilar"
+  given-names: "Eduardo"
+  orcid: "https://orcid.org/0009-0007-6251-2350"
+title: "hcatgnet"
+version: 1.0.0
+doi: 10.5281/zenodo.1234
+date-released: 2024-10-15
+url: "https://github.com/EdAguilarB/hcatgnet"
