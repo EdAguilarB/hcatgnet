@@ -12,6 +12,9 @@ sys.path.append(parent_dir)
 from utils.utils_model import tml_report, network_outer_report, network_report, calculate_morgan_fingerprints
 from options.base_options import BaseOptions
 from data.rhcaa import rhcaa_diene
+from data.biaryl import rhcaa_biaryl
+from data.general_reaction import reaction_representation
+from data.hypervalent_iodine import hypervalent_graph
 
 
 from icecream import ic
@@ -23,11 +26,20 @@ def predict_final_test(opt) -> None:
     current_dir = os.getcwd()
     
     # Load the final test set
-    final_test =rhcaa_diene(opt, opt.filename_final_test, opt.mol_cols, opt.root_final_test, include_fold=False)
-    test_loader = DataLoader(final_test, shuffle=False)
+    # Create the dataset
+    if opt.filename_final_test =='biaryl.csv':
+        data = rhcaa_biaryl(opt, opt.filename_final_test, opt.mol_cols, opt.root_final_test, include_fold=False)
+    elif opt.filename_final_test == 'N_S_acetal.csv' or opt.filename == 'asym_hydrogenation.csv':
+        data = reaction_representation(opt, opt.filename_final_test, opt.mol_cols, opt.root_final_test, include_fold=False)
+    elif opt.filename_final_test == 'hypervalent_iodine.csv':
+        data = hypervalent_graph(opt, opt.filename_final_test, opt.mol_cols, opt.root_final_test, include_fold=False)
+    else:
+        data = rhcaa_diene(opt, opt.filename_final_test, opt.mol_cols, opt.root_final_test, include_fold=False)
+
+    test_loader = DataLoader(data, shuffle=False)
 
     # Load the data for tml
-    test_set = pd.read_csv(f'{opt.root_final_test}/raw/{opt.filename_final_test}', index_col=0)
+    test_set = pd.read_csv(f'{opt.root_final_test}/raw/{opt.filename_final_test}')
 
     if opt.descriptors == 'bespoke':
         descriptors = ['LVR1', 'LVR2', 'LVR3', 'LVR4', 'LVR5', 'LVR6', 'LVR7', 'VB', 'ER1', 'ER2', 'ER3', 'ER4', 'ER5', 'ER6',
@@ -36,13 +48,19 @@ def predict_final_test(opt) -> None:
         fingerprints = calculate_morgan_fingerprints(df = test_set, smiles_cols=opt.mol_cols, variance_threshold=0)
         test_set = pd.concat([test_set, fingerprints], axis = 1)
     elif opt.descriptors == 'circus_fp':
-        fingerprints = pd.read_csv('data/datasets/circus_descriptors/diene_circus_descriptors.csv')
-        test_set = pd.merge(test_set, fingerprints, left_index=True, right_index=True)
+        test_set = test_set[opt.mol_cols + ['temp', 'ddG', 'index']]
+        if opt.filename == 'biaryl.csv':
+            fingerprints = pd.read_csv('data/datasets/circus_descriptors/biaryl_circus_descriptors.csv')
+        else:
+            fingerprints = pd.read_csv('data/datasets/circus_descriptors/diene_circus_descriptors.csv')
+        test_set = test_set.drop(opt.mol_cols, axis=1)
         descriptors = ['temp'] + fingerprints.columns.tolist()
+        test_set = pd.merge(test_set, fingerprints, left_index=True, right_index=True)
+        
 
 
-    experiments_gnn = os.path.join(current_dir, opt.log_dir_results, opt.filename_final_test[:-4], 'results_GNN')
-    experiments_tml = os.path.join(current_dir, opt.log_dir_results, opt.filename_final_test[:-4], 'results_TML', opt.tml_algorithm, opt.descriptors)
+    experiments_gnn = os.path.join(current_dir, opt.log_dir_results, opt.filename_final_test[:-4], 'test', 'results_GNN')
+    experiments_tml = os.path.join(current_dir, opt.log_dir_results, opt.filename_final_test[:-4], 'test', 'results_TML', opt.tml_algorithm, opt.descriptors)
 
     for outer in range(1, opt.folds+1):
         print('Analysing models trained using as test set {}'.format(outer))
@@ -52,7 +70,7 @@ def predict_final_test(opt) -> None:
             
             print('Analysing models trained using as validation set {}'.format(real_inner))
 
-            model_dir = os.path.join(current_dir, opt.log_dir_results, opt.filename[:-4], 'results_GNN', f'Fold_{outer}_test_set', f'Fold_{real_inner}_val_set')
+            model_dir = os.path.join(current_dir, opt.log_dir_results, opt.filename[:-4], 'learning','results_GNN', f'Fold_{outer}_test_set', f'Fold_{real_inner}_val_set')
 
             model = torch.load(model_dir+'/model.pth', weights_only=False)
             model_params = torch.load(model_dir+'/model_params.pth', weights_only=True)
@@ -69,7 +87,7 @@ def predict_final_test(opt) -> None:
                            best_epoch=None,
                            save_all=False)
             
-            tml_dir = os.path.join(current_dir, opt.log_dir_results, opt.filename[:-4], 'results_TML', opt.tml_algorithm, opt.descriptors, f'Fold_{outer}_test_set', f'Fold_{real_inner}_val_set')
+            tml_dir = os.path.join(current_dir, opt.log_dir_results, opt.filename[:-4], 'learning', 'results_TML', opt.tml_algorithm, opt.descriptors, f'Fold_{outer}_test_set', f'Fold_{real_inner}_val_set')
 
             model = joblib.load(tml_dir+'/model.sav')
             train_data = pd.read_csv(tml_dir+'/train.csv')
@@ -87,6 +105,7 @@ def predict_final_test(opt) -> None:
                 test_set = pd.concat([test_set, fps], axis = 1)
 
 
+
             tml_report(log_dir=experiments_tml,
                        outer=outer,
                        inner=real_inner,
@@ -97,10 +116,12 @@ def predict_final_test(opt) -> None:
             
                         
         network_outer_report(log_dir=f"{experiments_gnn}/Fold_{outer}_test_set/", 
-                             outer=outer)
+                             outer=outer,
+                             folds=opt.folds)
         
         network_outer_report(log_dir=f"{experiments_tml}/Fold_{outer}_test_set/", 
-                             outer=outer)
+                             outer=outer,
+                             folds=opt.folds)
         
 if __name__ == '__main__':
     opt = BaseOptions().parse()
