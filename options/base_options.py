@@ -92,28 +92,35 @@ class BaseOptions:
         self.parser.add_argument(
             '--root', 
             type=str, 
-            default='data/datasets/rhcaa_learning',
+            default='data/datasets/rhcaa/known_unknown/learning',
             help='path to the folder containing the csv files',
             )
         
         self.parser.add_argument(
             '--filename',
             type=str,
-            default='learning.csv',
+            default='rhcaa.csv',
             help='name of the csv file',
+            )
+        
+        self.parser.add_argument(
+            '--unseen_ratio',
+            type=float,
+            default=0.2,
+            help='ratio of unseen data',
             )
         
         self.parser.add_argument(
             '--filename_final_test',
             type=str,
-            default='final_test.csv',
+            default='rhcaa.csv',
             help='name of the csv file for the final test',
             )
         
         self.parser.add_argument(
             '--root_final_test', 
             type=str, 
-            default='data/datasets/rhcaa_final_test',
+            default='data/datasets/rhcaa/known_unknown/test',
             help='path to the folder containing the csv files',
             )
         
