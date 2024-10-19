@@ -348,7 +348,7 @@ def plot_importances(df, save_path: str=None):
 
 
 
-def plot_mean_predictions(df):
+def plot_mean_predictions(df, save_path: str=None, legend = True):
 
 # Create the parity plot
     plt.figure(figsize=(12, 10))
@@ -386,14 +386,20 @@ def plot_mean_predictions(df):
 
     # Add metrics as text
     metrics_text_str = "\n".join(metrics_text)
-    plt.text(0.4, 0.1, metrics_text_str, ha='left', va='top', transform=plt.gca().transAxes, fontsize=16, bbox=dict(facecolor='white', alpha=0.8))
+    plt.text(0.25, 0.1, metrics_text_str, ha='left', va='top', transform=plt.gca().transAxes, fontsize=16, bbox=dict(facecolor='white', alpha=0.8))
 
     # Adjust legend
-    plt.legend(fontsize=16, title_fontsize=18)
+    if legend:
+        plt.legend(fontsize=16, title_fontsize=18)
 
     # Show the plot
     plt.tight_layout()
+
+    if save_path:
+        # Save the figure before displaying it
+        plt.savefig(os.path.join(save_path, 'mean_predictions_plot'), dpi=300, bbox_inches='tight')
     plt.show()
+    plt.close()
     
 
 def plot_distribution(df):
@@ -428,3 +434,81 @@ def plot_distribution(df):
 
     # Show the plot
     plt.show()
+
+
+def parity_mean(df, save_path: str=None):
+
+# Create the parity plot
+    plt.figure(figsize=(12, 10))
+    sns.set(style="whitegrid")
+
+    # Scatter plot with hue for different methods
+    scatter = sns.scatterplot(x='real_ddG', y='mean_predicted_ddG', data=df, s=100, edgecolor='k', palette='deep')
+
+    # Add regression lines for each method and calculate metrics
+    metrics_text = []
+
+    sns.regplot(x='real_ddG', y='mean_predicted_ddG', data=df, scatter=False, ci=None, label=f'Regression {df}', line_kws={'linestyle': '--'})
+    
+    # Calculate R2 and MAE
+    r2 = r2_score(df['real_ddG'], df['mean_predicted_ddG'])
+    mae = mean_absolute_error(df['real_ddG'], df['mean_predicted_ddG'])
+    rmse = sqrt(mean_squared_error(df['real_ddG'], df['mean_predicted_ddG']))
+    metrics_text.append(f"$R^2$: {r2:.2f}, MAE: {mae:.2f}, RMSE: {rmse:.2f}")
+
+    # Line of equality
+    max_val = max(df['real_ddG'].max(), df['mean_predicted_ddG'].max())
+    min_val = min(df['real_ddG'].min(), df['mean_predicted_ddG'].min())
+    plt.plot([min_val, max_val], [min_val, max_val], 'k-', linewidth=2, label='Line of Equality')
+
+    # Titles and labels
+    plt.xlabel('Real ΔΔG$^{\u2021}$ / kJ $mol^{-1}$', fontsize=32)
+    plt.ylabel('Mean Predicted ΔΔG$^{\u2021}$ / kJ $mol^{-1}$', fontsize=32)
+
+    # Enhancing the overall look
+    plt.xticks(fontsize=30)
+    plt.yticks(fontsize=30)
+    plt.grid(True, linestyle='--', alpha=0.7)
+    sns.despine(trim=True)
+
+    # Add metrics as text
+    metrics_text_str = "\n".join(metrics_text)
+    plt.text(0.25, 0.1, metrics_text_str, ha='left', va='top', transform=plt.gca().transAxes, fontsize=30, bbox=dict(facecolor='white', alpha=0.8))
+
+    # Adjust legend
+    #plt.legend(fontsize=16, title_fontsize=18)
+
+    # Show the plot
+    plt.tight_layout()
+
+    if save_path:
+        # Save the figure before displaying it
+        plt.savefig(os.path.join(save_path, 'mean_predictions_plot'), dpi=300, bbox_inches='tight')
+    
+    plt.close()
+
+
+def plot_error_distribution(df, save_path: str=None):
+    # Calculate residuals
+    df['residuals'] = df['mean_predicted_ddG'] - df['real_ddG']
+
+    # Create the error distribution plot
+    plt.figure(figsize=(12, 10))
+    sns.set(style="whitegrid")
+    sns.histplot(df['residuals'], kde=True, edgecolor='k', color='blue')
+    plt.xlabel('Residuals (Predicted - Real) ΔΔG$^{\u2021}$ / kJ $mol^{-1}$', fontsize=32)
+    plt.ylabel('Frequency', fontsize=32)
+    #plt.title('Error Distribution', fontsize=22)
+    plt.grid(True, linestyle='--', alpha=0.7)
+    sns.despine(trim=True)
+
+    plt.xticks(fontsize=30)
+    plt.yticks(fontsize=30)
+
+    plt.tight_layout()
+
+    if save_path:
+        # Save the figure
+        plt.savefig(os.path.join(save_path, 'error_distribution_plot.png'), dpi=300, bbox_inches='tight')
+    
+    plt.close()
