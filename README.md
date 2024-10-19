@@ -1,5 +1,7 @@
 # HCat-GNet: Homogeneous Catalyst Graph Neural Network
 
+[![DOI](https://zenodo.org/badge/749817109.svg)](https://doi.org/10.5281/zenodo.13954088)
+
 ## Overview
 HCat-GNet (Homogeneous Catalyst Graph Neural Network) is a cutting-edge, open-source platform designed to facilitate the virtual evaluation and optimization of homogeneous catalysts. Utilizing Graph Neural Networks (GNNs), HCat-GNet predicts the selectivity of homogeneous catalytic reactions based solely on SMILES representations of participant molecules, significantly speeding up the process of ligand optimization in asymmetric catalysis.
 
