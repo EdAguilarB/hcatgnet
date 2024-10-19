@@ -41,13 +41,13 @@ def run_all_exp():
             print(f'GNN and TML ({opt.tml_algorithm}) Models have already been compared for {opt.filename_final_test[:-4]} dataset.')
 
     if opt.denoise_graph:
-        denoise_graphs(opt, exp_path=os.path.join(os.getcwd(), opt.log_dir_results, opt.filename[:-4], 'results_GNN'))
+        denoise_graphs(opt, exp_path=os.path.join(os.getcwd(), opt.log_dir_results, opt.filename[:-4], 'learning', 'results_GNN'))
 
     if opt.GNNExplainer:
-        GNNExplainer_node_feats(opt, exp_path=os.path.join(os.getcwd(), opt.log_dir_results, opt.filename[:-4], 'results_GNN'))
+        GNNExplainer_node_feats(opt, exp_path=os.path.join(os.getcwd(), opt.log_dir_results, opt.filename[:-4], 'learning', 'results_GNN'))
 
     if opt.shapley_analysis:
-        shapley_analysis(opt, exp_path=os.path.join(os.getcwd(), opt.log_dir_results, opt.filename[:-4], 'results_GNN'))
+        shapley_analysis(opt, exp_path=os.path.join(os.getcwd(), opt.log_dir_results, opt.filename[:-4], 'learning','results_GNN'))
 
 
 if __name__ == '__main__':
