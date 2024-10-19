@@ -4,6 +4,9 @@ authors:
 - family-names: "Aguilar"
   given-names: "Eduardo"
   orcid: "https://orcid.org/0009-0007-6251-2350"
+- family-names: "Figueredo"
+  given-names: "Grazziela"
+  orcid: "https://orcid.org/0000-0003-4094-7680"
 title: "hcatgnet"
 version: 1.0.1
 doi: 10.5281/zenodo.13954089
