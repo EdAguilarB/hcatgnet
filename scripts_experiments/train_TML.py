@@ -98,7 +98,7 @@ def train_tml_model_nested_cv(opt) -> None:
                   format(outer, real_inner, counter, TOT_RUNS, train_rmse, val_rmse, test_rmse) )
             
             # Generate a report of the model performance
-            tml_report(log_dir=f"{opt.log_dir_results}/{opt.filename[:-4]}/results_TML/{opt.tml_algorithm}/{opt.descriptors}/",
+            tml_report(log_dir=f"{opt.log_dir_results}/{opt.filename[:-4]}/learning/results_TML/{opt.tml_algorithm}/{opt.descriptors}/",
                        data = (train_set, val_set, test_set),
                        outer = outer,
                        inner = real_inner,
@@ -114,8 +114,9 @@ def train_tml_model_nested_cv(opt) -> None:
 
         # Generate a report of the model performance for the outer/test fold
         network_outer_report(
-            log_dir=f"{opt.log_dir_results}/{opt.filename[:-4]}/results_TML/{opt.tml_algorithm}/{opt.descriptors}/Fold_{outer}_test_set/",
+            log_dir=f"{opt.log_dir_results}/{opt.filename[:-4]}/learning/results_TML/{opt.tml_algorithm}/{opt.descriptors}/Fold_{outer}_test_set/",
             outer=outer,
+            folds=opt.folds,
         )
 
         print('---------------------------------')
