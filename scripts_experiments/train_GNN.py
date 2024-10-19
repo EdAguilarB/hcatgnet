@@ -10,6 +10,8 @@ sys.path.append(parent_dir)
 
 from data.rhcaa import rhcaa_diene
 from data.biaryl import rhcaa_biaryl
+from data.general_reaction import reaction_representation
+from data.hypervalent_iodine import hypervalent_graph
 from options.base_options import BaseOptions
 from call_methods import make_network, create_loaders
 from utils.utils_model import train_network, eval_network, network_report, network_outer_report
@@ -31,10 +33,13 @@ def train_network_nested_cv(opt) -> None:
     # Create the dataset
     if opt.filename =='biaryl.csv':
         data = rhcaa_biaryl(opt, opt.filename, opt.mol_cols, root=opt.root)
+    elif opt.filename == 'N_S_acetal.csv' or opt.filename == 'asym_hydrogenation.csv':
+        data = reaction_representation(opt, opt.filename, opt.mol_cols, root=opt.root)
+    elif opt.filename == 'hypervalent_iodine.csv':
+        data = hypervalent_graph(opt, opt.filename, opt.mol_cols, root=opt.root)
     else:
         data = rhcaa_diene(opt, opt.filename, opt.mol_cols, root=opt.root)
-    ic(data[0])
-    ic(data[0].x)
+
 
     # Create the loaders and nested cross validation iterators
     ncv_iterators = create_loaders(data, opt)
@@ -122,7 +127,7 @@ def train_network_nested_cv(opt) -> None:
 
             # Report the model performance
             network_report(
-                log_dir=f"{opt.log_dir_results}/{opt.filename[:-4]}/results_GNN/",
+                log_dir=f"{opt.log_dir_results}/{opt.filename[:-4]}/learning/results_GNN/",
                 loaders=(train_loader, val_loader, test_loader),
                 outer=outer,
                 inner=real_inner,
@@ -140,8 +145,9 @@ def train_network_nested_cv(opt) -> None:
         print('Generating outer report')
 
         network_outer_report(
-            log_dir=f"{opt.log_dir_results}/{opt.filename[:-4]}/results_GNN/Fold_{outer}_test_set/",
+            log_dir=f"{opt.log_dir_results}/{opt.filename[:-4]}/learning/results_GNN/Fold_{outer}_test_set/",
             outer=outer,
+            folds=opt.folds,
         )
 
         print('---------------------------------')
