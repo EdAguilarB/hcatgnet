@@ -515,15 +515,61 @@ def calculate_morgan_fingerprints(df, smiles_cols, radius=2, n_bits=2048, varian
     return filtered_fingerprint_df
 
 
-def calculate_circus_fingerprints(df, smiles_cols,):
+def calculate_circus_fingerprints(df, opt):
 
-    smiles_clean = [[] for _ in range(len(smiles_cols))]
+    if os.path.exists('data', 'datasets', 'circus_descriptors', f'{opt.filename[:-4]}_circus_descriptors.csv'):
+        descriptors = pd.read_csv('data', 'datasets', 'circus_descriptors', f'{opt.filename[:-4]}_circus_descriptors.csv')
+        return descriptors
+    
+    else:
+        from CGRtools import smiles
+        from doptools.chem.chem_features import ChythonCircus
 
-    for i, col in tqdm(enumerate(df.iterrows()), total=len(df)):
+        unique_smiles = []
 
-        for j in range(len(smiles_cols)):
+        for mol_col in opt.smiles_cols:
+            unique_smiles.append(df[mol_col].unique().tolist())
 
-            smiles_clean[j].append(col[1][smiles_cols[j]])
+        clean_smiles = [[] for _ in range(len(opt.smiles_cols))]
+
+        for i, mol_col in enumerate(opt.smiles_cols):
+
+            for mol in unique_smiles[i]:
+                clean_smiles[i].append(smiles(mol))
+                clean_smiles[i][-1].clean2d()
+        
+        df_list = []
+
+        for i, mol_col in enumerate(opt.smiles_cols):
+            circus = ChythonCircus(lower = 0, upper = 2)
+            circus.fit(clean_smiles[i])
+            fp = circus.transform(clean_smiles[i])
+            fp.rename(columns={col: f"{mol_col}_{col}" for col in fp.columns})
+            fp.index = unique_smiles[i]
+            df_list.append(fp)
+
+        cols = [df.columns for df in df_list]
+        
+        fps_all = pd.DataFrame(index=df.index, columns= cols)
+
+        for i, row in df.iterrows():
+            fps = []
+            for j, mol_col in enumerate(opt.smiles_cols):
+                mol_fp = df_list.loc[row[mol_col]]
+                fps.append(mol_fp)
+    
+            fps_all.loc[i] = pd.concat(fps, axis=0)
+        
+        fps_all.to_csv('data', 'datasets', 'circus_descriptors', f'{opt.filename[:-4]}_circus_descriptors.csv')
+
+        return fps_all
+
+
+
+
+
+
+
 
 
 
