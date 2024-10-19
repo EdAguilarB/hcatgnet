@@ -15,7 +15,7 @@ from math import sqrt
 from utils.plot_utils import *
 from icecream import ic
 from sklearn.preprocessing import RobustScaler
-
+from tqdm import tqdm
 from rdkit import Chem
 from rdkit.Chem import AllChem
 
@@ -27,7 +27,7 @@ def calculate_metrics(y_true:list, y_predicted: list,  task = 'r'):
         mae = mean_absolute_error(y_true=y_true, y_pred=y_predicted)
         rmse = sqrt(mean_squared_error(y_true=y_true, y_pred=y_predicted))  
         error = [(y_predicted[i]-y_true[i]) for i in range(len(y_true))]
-        prctg_error = [ abs(error[i] / y_true[i]) for i in range(len(error))]
+        prctg_error = [ abs(error[i] / y_true[i]) for i in range(len(error)) if y_true[i] != 0]
         mbe = np.mean(error)
         mape = np.mean(prctg_error)
         error_std = np.std(error)
@@ -260,12 +260,13 @@ def network_report(log_dir,
 
 
 def network_outer_report(log_dir: str,
-                         outer: int,):
+                         outer: int,
+                         folds: int,):
     
     
     accuracy, precision, recall, r2, mae, rmse = [], [], [], [], [], []
 
-    files = [log_dir+f'Fold_{i}_val_set/performance.txt' for i in range(1, 11) if i != outer]
+    files = [log_dir+f'Fold_{i}_val_set/performance.txt' for i in range(1, folds+1) if i != outer]
 
     # Define regular expressions to match metric lines
     accuracy_pattern = re.compile(r"Accuracy = (\d+\.\d+)")
@@ -512,6 +513,18 @@ def calculate_morgan_fingerprints(df, smiles_cols, radius=2, n_bits=2048, varian
     filtered_fingerprint_df = fingerprint_df[selected_columns]
 
     return filtered_fingerprint_df
+
+
+def calculate_circus_fingerprints(df, smiles_cols,):
+
+    smiles_clean = [[] for _ in range(len(smiles_cols))]
+
+    for i, col in tqdm(enumerate(df.iterrows()), total=len(df)):
+
+        for j in range(len(smiles_cols)):
+
+            smiles_clean[j].append(col[1][smiles_cols[j]])
+
 
 
 def tml_report(log_dir,
