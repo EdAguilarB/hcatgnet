@@ -1,19 +1,25 @@
 import argparse
 from copy import copy, deepcopy
+
 from torch_geometric.loader import DataLoader
 
+from hcatgnet.options.enums import Networks
 
 
-def make_network(network_name: str, opt: argparse.Namespace, n_node_features: int):
-    if network_name == "GCN":
-        from model.gcn import GCN
-        return GCN(opt=opt, n_node_features=n_node_features)
+def make_network(
+    network_name: str, n_node_features: int, n_edge_features: int, seed: int = 20232023
+):
+    if network_name == Networks.GCN:
+        from hcatgnet.gnn_training.models.gcn import GCN
+
+        return GCN(
+            n_node_features=n_node_features, n_edge_features=n_edge_features, seed=seed
+        )
     else:
         raise ValueError(f"Network {network_name} not implemented")
-    
 
-def create_loaders(dataset, opt: argparse.Namespace):
 
+def create_loaders(dataset, folds, batch_size):
     """
     Creates training, validation and testing loaders for cross validation and
     inner cross validation training-evaluation processes.
@@ -29,9 +35,6 @@ def create_loaders(dataset, opt: argparse.Namespace):
 
     """
 
-    batch_size = opt.batch_size
-    folds = opt.folds
-
     folds = [[] for _ in range(folds)]
     for data in dataset:
         folds[data.fold].append(data)
@@ -41,7 +44,13 @@ def create_loaders(dataset, opt: argparse.Namespace):
         test_loader = DataLoader(proxy.pop(outer), batch_size=batch_size, shuffle=False)
         for inner in range(len(proxy)):  # length is reduced by 1 here
             proxy2 = copy(proxy)
-            val_loader = DataLoader(proxy2.pop(inner), batch_size=batch_size, shuffle=False)
-            flatten_training = [item for sublist in proxy2 for item in sublist]  # flatten list of lists
-            train_loader = DataLoader(flatten_training, batch_size=batch_size, shuffle=True)
+            val_loader = DataLoader(
+                proxy2.pop(inner), batch_size=batch_size, shuffle=False
+            )
+            flatten_training = [
+                item for sublist in proxy2 for item in sublist
+            ]  # flatten list of lists
+            train_loader = DataLoader(
+                flatten_training, batch_size=batch_size, shuffle=True
+            )
             yield deepcopy((train_loader, val_loader, test_loader))
