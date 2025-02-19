@@ -164,3 +164,4 @@ cython_debug/
 figs.ipynb
 **/processed/
 results/
+TRIAL/
