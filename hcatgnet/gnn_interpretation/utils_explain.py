@@ -353,7 +353,7 @@ def visualize_score_features(score: torch.Tensor, feature_sizes: dict):
 def plot_importances(
     df,
 ):
-    plt.figure(figsize=(10, 6))
+    plt.figure(figsize=(10, 6), dpi=300)
 
     ax = barplot(df, x="score", y="labels", estimator="sum", errorbar=None)
     ax.bar_label(ax.containers[0], fontsize=10)

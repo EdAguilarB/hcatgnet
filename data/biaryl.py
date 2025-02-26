@@ -1,17 +1,18 @@
 import argparse
+import os
+import re
+import sys
+
+import numpy as np
 import pandas as pd
 import torch
-from torch_geometric.data import Data
-import numpy as np
-from rdkit import Chem
-import os
-from tqdm import tqdm
 from molvs import standardize_smiles
-import sys
-from data.datasets import reaction_graph
+from rdkit import Chem
 from sklearn.model_selection import StratifiedKFold
+from torch_geometric.data import Data
+from tqdm import tqdm
 
-from icecream import ic
+from data.datasets import reaction_graph
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -20,26 +21,34 @@ class rhcaa_biaryl(reaction_graph):
 
     def __init__(
         self,
-        opt: argparse.Namespace,
         filename: str,
+        root: str,
         molcols: list,
-        root: str = None,
-        include_fold=True,
+        target_variable: str,
+        include_Hs=True,
+        num_folds=10,
+        random_seed=20232023,
     ) -> None:
 
-        self._include_fold = include_fold
+        self._include_fold = num_folds
+
+        file_folds = filename[:-4] + "_folds" + filename[-4:]
 
         if self._include_fold:
-            try:
-                file_folds = filename[:-4] + "_folds" + filename[-4:]
-                pd.read_csv(os.path.join(root, "raw", f"{file_folds}"))
-            except:
-                self.split_data(root, filename, opt.folds, opt.global_seed)
+            if not os.path.exists(os.path.join(root, "raw", f"{file_folds}")):
+                self.split_data(root, filename, num_folds, random_seed)
             filename = filename[:-4] + "_folds" + filename[-4:]
 
-        super().__init__(opt=opt, filename=filename, mol_cols=molcols, root=root)
+        super().__init__(
+            filename=filename,
+            root=root,
+            mol_cols=molcols,
+            target_variable=target_variable,
+            include_Hs=include_Hs,
+        )
 
         self._name = "rhcaa_biaryl"
+        self.get_atom_feats_length()
 
     @property
     def _elem_list(self):
@@ -73,12 +82,18 @@ class rhcaa_biaryl(reaction_graph):
 
             temp = reaction["temp"] / 100
 
+            mols = {}
+
             for reactant in self.mol_cols:
 
-                # create a molecule object from the smiles string
-                mol = Chem.MolFromSmiles(standardize_smiles(reaction[reactant]))
+                smiles = standardize_smiles(reaction[reactant])
 
-                mol = Chem.rdmolops.AddHs(mol)
+                mols[re.sub(r"\s+", "", reactant).lower()] = smiles
+
+                mol = Chem.MolFromSmiles(smiles)
+
+                if self._include_Hs:
+                    mol = Chem.rdmolops.AddHs(mol)
 
                 node_feats = self._get_node_feats(
                     mol, reaction["Confg"], reactant, temp
@@ -103,8 +118,7 @@ class rhcaa_biaryl(reaction_graph):
                         [edge_index_reaction, edge_index], axis=1
                     )
 
-            y = torch.tensor(reaction["ddG"]).reshape(1)
-            top = torch.tensor(reaction["%top"]).reshape(1)
+            y = torch.tensor(reaction[self._target_variable]).reshape(1)
 
             if self._include_fold:
                 fold = reaction["fold"]
@@ -116,10 +130,7 @@ class rhcaa_biaryl(reaction_graph):
                 edge_index=edge_index_reaction,
                 edge_attr=edge_attr_reaction,
                 y=y,
-                top=top,
-                ligand=standardize_smiles(reaction["Ligand"]),
-                substrate=standardize_smiles(reaction["substrate"]),
-                boron=standardize_smiles(reaction["boron reagent"]),
+                mols=mols,
                 idx=index,
                 fold=fold,
             )
@@ -213,36 +224,16 @@ class rhcaa_biaryl(reaction_graph):
 
         return torch.tensor(all_edge_feats, dtype=torch.float), edge_indices
 
-    def _create_folds(num_folds, df):
-        """
-        splits a dataset in a given quantity of folds
-
-        Args:
-        num_folds = number of folds to create
-        df = dataframe to be splited
-
-        Returns:
-        dataset with new "folds" and "mini_folds" column with information of fold for each datapoint
-        """
-
-        # Calculate the number of data points in each fold
-        fold_size = len(df) // num_folds
-        remainder = len(df) % num_folds
-
-        # Create a 'fold' column to store fold assignments
-        fold_column = []
-
-        # Assign folds
-        for fold in range(1, num_folds + 1):
-            fold_count = fold_size
-            if fold <= remainder:
-                fold_count += 1
-            fold_column.extend([fold] * fold_count)
-
-        # Assign the 'fold' column to the DataFrame
-        df["fold"] = fold_column
-
-        return df
+    def get_atom_feats_length(self):
+        self.atom_feats_length = {
+            "Atomic Identity": len(self._elem_list),
+            "Atom Degree": 5,
+            "Atom Hybridization": 5,
+            "Atom Aromaticity": 1,
+            "Atom in Ring": 1,
+            "Atom Chirality": 2,
+            "Ligand Confg.": 2,
+        }
 
     def split_data(self, root, filename, n_folds, random_seed):
 

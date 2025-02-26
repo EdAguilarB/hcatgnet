@@ -11,25 +11,23 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.abspath(os.path.join(current_dir, ".."))
 sys.path.append(parent_dir)
 
-from hcatgnet.utils.utils_model import (
-    tml_report,
-)
 from hcatgnet.services.model_report import network_outer_report, network_report
+from hcatgnet.utils.utils_model import tml_report
 from options.base_options import BaseOptions
 
 
 def predict_final_test(
-        graph_dataset,
-        handcrafted_descriptors_dataset,
-        descriptors,
-        folds: int = 10,
-        GNN_experiment_path: Path = Path('results'),
-        TML_experiment_path: Path = Path('results'),
-        GNN_log_dir: Path = Path('results'),
-        TML_log_dir: Path = Path('results')) -> None:
+    graph_dataset,
+    handcrafted_descriptors_dataset,
+    descriptors,
+    folds: int = 10,
+    GNN_experiment_path: Path = Path("results"),
+    TML_experiment_path: Path = Path("results"),
+    GNN_log_dir: Path = Path("results"),
+    TML_log_dir: Path = Path("results"),
+) -> None:
 
     test_loader = DataLoader(graph_dataset, shuffle=False)
-
 
     # elif representation == "morgan":
     #     fingerprints = calculate_morgan_fingerprints(
@@ -50,7 +48,6 @@ def predict_final_test(
     #     descriptors = ["temp"] + fingerprints.columns.tolist()
     #     test_set = pd.merge(test_set, fingerprints, left_index=True, right_index=True)
 
-
     for outer in range(1, folds + 1):
         print("Analysing models trained using as test set {}".format(outer))
         for inner in range(1, folds):
@@ -68,9 +65,7 @@ def predict_final_test(
             )
 
             model = torch.load(model_dir / "model.pth", weights_only=False)
-            model_params = torch.load(
-                model_dir / "model_params.pth", weights_only=True
-            )
+            model_params = torch.load(model_dir / "model_params.pth", weights_only=True)
             train_loader = torch.load(
                 model_dir / "train_loader.pth", weights_only=False
             )
@@ -109,13 +104,13 @@ def predict_final_test(
             )
 
         network_outer_report(
-            log_dir= GNN_log_dir / f'Fold_{outer}_test_set',
+            log_dir=GNN_log_dir / f"Fold_{outer}_test_set",
             outer=outer,
             folds=folds,
         )
 
         network_outer_report(
-            log_dir= TML_log_dir / f'Fold_{outer}_test_set/',
+            log_dir=TML_log_dir / f"Fold_{outer}_test_set/",
             outer=outer,
             folds=folds,
         )

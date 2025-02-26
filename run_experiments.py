@@ -1,15 +1,12 @@
 import os
+
+from options.base_options import BaseOptions
+from scripts_experiments.compare_gnn_tml import plot_results
+from scripts_experiments.explain_gnn import (GNNExplainer_node_feats,
+                                             denoise_graphs, shapley_analysis)
+from scripts_experiments.predict_test import predict_final_test
 from scripts_experiments.train_GNN import train_network_nested_cv
 from scripts_experiments.train_TML import train_tml_model_nested_cv
-from scripts_experiments.predict_test import predict_final_test
-from scripts_experiments.compare_gnn_tml import plot_results
-from scripts_experiments.explain_gnn import (
-    denoise_graphs,
-    GNNExplainer_node_feats,
-    shapley_analysis,
-)
-from options.base_options import BaseOptions
-import os
 
 
 def run_all_exp():

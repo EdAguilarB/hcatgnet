@@ -5,12 +5,8 @@ from torch.utils.data import Subset
 from torch_geometric.explain import CaptumExplainer, Explainer, GNNExplainer
 
 from hcatgnet.gnn_interpretation.utils_explain import (
-    explain_dataset,
-    plot_denoised_mols,
-    plot_importances,
-    plot_molecule_importance,
-    visualize_score_features,
-)
+    explain_dataset, plot_denoised_mols, plot_importances,
+    plot_molecule_importance, visualize_score_features)
 
 
 def denoise_mol(
