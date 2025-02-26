@@ -90,16 +90,16 @@ def extract_metrics(file):
     return metrics
 
 
-def load_variables(data, descriptors: list):
+def load_variables(data, descriptors: list, target_variable: str):
 
     data = data.filter(descriptors)
 
     # remove erroneous data
     data = data.dropna(axis=0)
 
-    X = data.drop(["ddG"], axis=1)
+    X = data.drop([target_variable], axis=1)
     X = RobustScaler().fit_transform(np.array(X))
-    y = data["ddG"]
+    y = data[target_variable]
     print("Features shape: ", X.shape)
     print("Y target variable shape: ", y.shape)
 
