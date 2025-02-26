@@ -2,7 +2,8 @@ import torch
 import torch.nn as nn
 from torch_geometric.seed import seed_everything
 
-from hcatgnet.options.enums import Optimizers, Pooling, ProblemTypes, Schedulers
+from hcatgnet.options.enums import (Optimizers, Pooling, ProblemTypes,
+                                    Schedulers)
 
 
 class BaseNetwork(nn.Module):
