@@ -1,17 +1,18 @@
 import argparse
+import os
+import sys
+
+import numpy as np
 import pandas as pd
 import torch
-from torch_geometric.data import Data
-import numpy as np
-from rdkit import Chem
-import os
-from tqdm import tqdm
-from molvs import standardize_smiles
-import sys
-from data.datasets import reaction_graph
-from sklearn.model_selection import StratifiedKFold
-
 from icecream import ic
+from molvs import standardize_smiles
+from rdkit import Chem
+from sklearn.model_selection import StratifiedKFold
+from torch_geometric.data import Data
+from tqdm import tqdm
+
+from data.datasets import reaction_graph
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
