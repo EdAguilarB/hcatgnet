@@ -1,16 +1,17 @@
+import os
+import re
+import sys
+
+import numpy as np
 import pandas as pd
 import torch
-from torch_geometric.data import Data
-import numpy as np
-from rdkit import Chem
-import os
-from tqdm import tqdm
 from molvs import standardize_smiles
-import sys
-from data.datasets import reaction_graph
-import re
+from rdkit import Chem
 from sklearn.model_selection import StratifiedKFold
+from torch_geometric.data import Data
+from tqdm import tqdm
 
+from data.datasets import reaction_graph
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -20,8 +21,9 @@ class rhcaa_diene(reaction_graph):
     def __init__(
         self,
         filename: str,
+        root: str,
         molcols: list,
-        root: str = None,
+        target_variable: str,
         include_Hs=True,
         num_folds=10,
         random_seed=20232023,
@@ -37,7 +39,11 @@ class rhcaa_diene(reaction_graph):
             filename = filename[:-4] + "_folds" + filename[-4:]
 
         super().__init__(
-            filename=filename, mol_cols=molcols, root=root, include_Hs=include_Hs
+            filename=filename,
+            root=root,
+            mol_cols=molcols,
+            target_variable=target_variable,
+            include_Hs=include_Hs,
         )
 
         self._name = "rhcaa_diene"
@@ -90,8 +96,7 @@ class rhcaa_diene(reaction_graph):
                         [edge_index_reaction, edge_index], axis=1
                     )
 
-            y = torch.tensor(reaction["ddG"]).reshape(1)
-            top = torch.tensor(reaction["%top"]).reshape(1)
+            y = torch.tensor(reaction[self._target_variable]).reshape(1)
 
             if self._include_fold:
                 fold = reaction["fold"]
@@ -103,7 +108,6 @@ class rhcaa_diene(reaction_graph):
                 edge_index=edge_index_reaction,
                 edge_attr=edge_attr_reaction,
                 y=y,
-                top=top,
                 mols=mols,
                 idx=index,
                 fold=fold,

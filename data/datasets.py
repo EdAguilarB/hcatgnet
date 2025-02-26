@@ -1,12 +1,10 @@
-import argparse
 import os
 import sys
-import torch
+
 import pandas as pd
-from torch_geometric.data import Dataset
-
+import torch
 from icecream import ic
-
+from torch_geometric.data import Dataset
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -14,14 +12,20 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 class reaction_graph(Dataset):
 
     def __init__(
-        self, filename: str, mol_cols: list, root: str, include_Hs=True
+        self,
+        filename: str,
+        root: str,
+        mol_cols: list,
+        target_variable: str,
+        include_Hs=True,
     ) -> None:
 
         self.filename = filename
-        self.mol_cols = mol_cols
-        self._name = "BaseDataset"
         self._root = root
+        self.mol_cols = mol_cols
+        self._target_variable = target_variable
         self._include_Hs = include_Hs
+        self._name = "BaseDataset"
 
         super().__init__(root=self._root)
 
