@@ -12,14 +12,9 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.abspath(os.path.join(current_dir, ".."))
 sys.path.append(parent_dir)
 
-from hcatgnet.utils.utils_model import (
-    calculate_morgan_fingerprints,
-    choose_model,
-    hyperparam_tune,
-    load_variables,
-    split_data,
-    tml_report,
-)
+from hcatgnet.utils.utils_model import (calculate_morgan_fingerprints,
+                                        choose_model, hyperparam_tune,
+                                        load_variables, split_data, tml_report)
 from options.base_options import BaseOptions
 
 
@@ -27,6 +22,7 @@ def train_tml_model_nested_cv(
     data_csv: pd.DataFrame,
     mol_cols: list,
     descriptors: list,
+    target_variable: str,
     tml_algorithm: str = "rf",
     representation: str = "bespoke",
     folds: int = 10,
@@ -77,7 +73,11 @@ def train_tml_model_nested_cv(
 
     # Hyperparameter optimisation
     print("Hyperparameter optimisation starting...")
-    X, y, _ = load_variables(data=data_csv, descriptors=descriptors + ["ddG"])
+    X, y, _ = load_variables(
+        data=data_csv,
+        descriptors=descriptors + [target_variable],
+        target_variable=target_variable,
+    )
     best_params = hyperparam_tune(
         X,
         y,
@@ -145,8 +145,7 @@ def train_tml_model_nested_cv(
 
         # Generate a report of the model performance for the outer/test fold
         network_outer_report(
-            log_dir=log_results_dir
-            / f"Fold_{outer}_test_set/",
+            log_dir=log_results_dir / f"Fold_{outer}_test_set/",
             outer=outer,
             folds=folds,
         )

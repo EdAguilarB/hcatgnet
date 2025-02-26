@@ -36,6 +36,7 @@ def train_network_nested_cv(
 
     # Set the device to cuda if available
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print("Using device:", device)
 
     # Create the loaders and nested cross validation iterators
     ncv_iterators = create_loaders(graph_dataset, folds, batch_size)

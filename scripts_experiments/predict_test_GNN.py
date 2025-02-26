@@ -15,59 +15,14 @@ from hcatgnet.services.model_report import network_outer_report, network_report
 from options.base_options import BaseOptions
 
 
-def predict_final_test(
+def predict_final_test_GNN(
     graph_dataset,
-    log_results_dir: Path = Path("results"),
     folds: int = 10,
     GNN_experiment_path: Path = Path("results"),
+    log_results_dir: Path = Path("results"),
 ) -> None:
 
-    # Get the current working directory
-    current_dir = os.getcwd()
-
-    # Load the final test set
-
-    # Create the dataset
-    """     if opt.filename_final_test == "biaryl.csv":
-            data = rhcaa_biaryl(
-                opt,
-                opt.filename_final_test,
-                opt.mol_cols,
-                opt.root_final_test,
-                include_fold=False,
-            )
-        elif (
-            opt.filename_final_test == "N_S_acetal.csv"
-            or opt.filename == "asym_hydrogenation.csv"
-        ):
-            data = reaction_representation(
-                opt,
-                opt.filename_final_test,
-                opt.mol_cols,
-                opt.root_final_test,
-                include_fold=False,
-            )
-        elif opt.filename_final_test == "hypervalent_iodine.csv":
-            data = hypervalent_graph(
-                opt,
-                opt.filename_final_test,
-                opt.mol_cols,
-                opt.root_final_test,
-                include_fold=False,
-            )
-        else:
-            data = rhcaa_diene(
-                opt,
-                opt.filename_final_test,
-                opt.mol_cols,
-                opt.root_final_test,
-                include_fold=False,
-            )
-    """
-
     test_loader = DataLoader(graph_dataset, shuffle=False)
-
-    experiments_gnn = GNN_experiment_path / "results_GNN"
 
     for outer in range(1, folds + 1):
         print("Analysing models trained using as test set {}".format(outer))
@@ -81,7 +36,6 @@ def predict_final_test(
 
             model_dir = (
                 GNN_experiment_path
-                / "results_GNN"
                 / f"Fold_{outer}_test_set"
                 / f"Fold_{real_inner}_val_set"
             )
@@ -95,7 +49,7 @@ def predict_final_test(
             val_loader = torch.load(model_dir / "val_loader.pth", weights_only=False)
 
             network_report(
-                log_dir=experiments_gnn,
+                log_dir=log_results_dir,
                 loaders=(train_loader, val_loader, test_loader),
                 outer=outer,
                 inner=real_inner,
@@ -107,7 +61,7 @@ def predict_final_test(
             )
 
         network_outer_report(
-            log_dir= experiments_gnn / f'Fold_{outer}_test_set',
+            log_dir=log_results_dir / f"Fold_{outer}_test_set",
             outer=outer,
             folds=folds,
         )
@@ -115,4 +69,4 @@ def predict_final_test(
 
 if __name__ == "__main__":
     opt = BaseOptions().parse()
-    predict_final_test(opt)
+    predict_final_test_GNN(opt)

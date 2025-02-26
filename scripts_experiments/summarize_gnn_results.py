@@ -1,22 +1,23 @@
 import os
 import sys
+from pathlib import Path
 
-import numpy as np
 import pandas as pd
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.abspath(os.path.join(current_dir, ".."))
 sys.path.append(parent_dir)
 
-from utils.plot_utils import parity_mean, plot_error_distribution
-from utils.utils_model import extract_metrics
-
+from hcatgnet.utils.plot_utils import parity_mean, plot_error_distribution
+from hcatgnet.utils.utils_model import extract_metrics
 from options.base_options import BaseOptions
 
 
-def plot_results(exp_dir, opt):
-
-    experiments_gnn = os.path.join(exp_dir, "results_GNN")
+def plot_results_GNN(
+    experiments_gnn: Path = Path("results"),
+    folds: int = 10,
+    log_dir_results: Path = Path("results"),
+):
 
     r2_gnn, mae_gnn, rmse_gnn = [], [], []
     accuracy_gnn, precision_gnn, recall_gnn = [], [], []
@@ -32,7 +33,7 @@ def plot_results(exp_dir, opt):
         ]
     )
 
-    for outer in range(1, opt.folds + 1):
+    for outer in range(1, folds + 1):
 
         outer_gnn = os.path.join(experiments_gnn, f"Fold_{outer}_test_set")
 
@@ -47,7 +48,7 @@ def plot_results(exp_dir, opt):
         precision_gnn.append(metrics_gnn["Precision"])
         recall_gnn.append(metrics_gnn["Recall"])
 
-        for inner in range(1, opt.folds):
+        for inner in range(1, folds):
 
             real_inner = inner + 1 if outer <= inner else inner
 
@@ -63,15 +64,12 @@ def plot_results(exp_dir, opt):
 
             results_all = pd.concat([results_all, df_gnn], axis=0)
 
-    save_dir = f"{exp_dir}/GNN_performance"
-    os.makedirs(save_dir, exist_ok=True)
+    os.makedirs(log_dir_results, exist_ok=True)
 
     results_all["Error"] = results_all["real_ddG"] - results_all["predicted_ddG"]
 
     results_all = results_all.reset_index(drop=True)
-    results_all.to_csv(f"{save_dir}/predictions_all.csv", index=False)
-
-    print("All plots have been saved in the directory {}".format(save_dir))
+    results_all.to_csv(f"{log_dir_results}/predictions_all.csv", index=False)
 
     gnn_predictions = results_all[results_all["Method"] == "GNN"]
 
@@ -87,11 +85,13 @@ def plot_results(exp_dir, opt):
         .reset_index()
     )
 
-    parity_mean(df=gnn_predictions, save_path=save_dir)
-    plot_error_distribution(df=gnn_predictions, save_path=save_dir)
+    parity_mean(df=gnn_predictions, save_path=log_dir_results)
+    plot_error_distribution(df=gnn_predictions, save_path=log_dir_results)
+
+    print("All plots have been saved in the directory {}".format(log_dir_results))
 
 
 if __name__ == "__main__":
     opt = BaseOptions().parse()
     exp_dir = os.path.join(opt.log_dir_results, opt.filename[:-4], "test")
-    plot_results(exp_dir, opt)
+    plot_results_GNN(exp_dir, opt)

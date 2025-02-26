@@ -8,13 +8,9 @@ from model.gcn import GCN_explain
 from torch_geometric.explain import CaptumExplainer, Explainer, GNNExplainer
 from torch_geometric.loader import DataLoader
 from tqdm import tqdm
-from utils.other_utils import (
-    explain_dataset,
-    get_graph_by_idx,
-    plot_denoised_mols,
-    plot_molecule_importance,
-    visualize_score_features,
-)
+from utils.other_utils import (explain_dataset, get_graph_by_idx,
+                               plot_denoised_mols, plot_molecule_importance,
+                               visualize_score_features)
 from utils.plot_utils import plot_importances
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
