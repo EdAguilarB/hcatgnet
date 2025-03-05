@@ -8,8 +8,7 @@ from torch_geometric.nn import global_max_pool as gmp
 from torch_geometric.nn import global_mean_pool as gap
 
 from hcatgnet.gnn_training.models.networks import BaseNetwork
-from hcatgnet.options.enums import (Optimizers, Pooling, ProblemTypes,
-                                    Schedulers)
+from hcatgnet.options.enums import Optimizers, Pooling, ProblemTypes, Schedulers
 
 
 class GCN(BaseNetwork):

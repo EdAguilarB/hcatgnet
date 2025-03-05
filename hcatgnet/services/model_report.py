@@ -10,9 +10,11 @@ import torch
 from hcatgnet.options.enums import ProblemTypes
 from hcatgnet.services.metrics import calculate_metrics
 from hcatgnet.services.model_training import predict_network
-from hcatgnet.services.plotting import (create_st_parity_plot,
-                                        create_training_plot,
-                                        plot_tsne_with_subsets)
+from hcatgnet.services.plotting import (
+    create_st_parity_plot,
+    create_training_plot,
+    plot_tsne_with_subsets,
+)
 
 
 def network_report(

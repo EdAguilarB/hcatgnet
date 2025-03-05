@@ -12,9 +12,14 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.abspath(os.path.join(current_dir, ".."))
 sys.path.append(parent_dir)
 
-from hcatgnet.utils.utils_model import (calculate_morgan_fingerprints,
-                                        choose_model, hyperparam_tune,
-                                        load_variables, split_data, tml_report)
+from hcatgnet.utils.utils_model import (
+    calculate_morgan_fingerprints,
+    choose_model,
+    hyperparam_tune,
+    load_variables,
+    split_data,
+    tml_report,
+)
 from options.base_options import BaseOptions
 
 

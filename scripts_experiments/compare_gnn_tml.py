@@ -4,16 +4,25 @@ from math import sqrt
 
 import numpy as np
 import pandas as pd
-from sklearn.metrics import (accuracy_score, mean_absolute_error,
-                             mean_squared_error, precision_score, r2_score,
-                             recall_score)
+from sklearn.metrics import (
+    accuracy_score,
+    mean_absolute_error,
+    mean_squared_error,
+    precision_score,
+    r2_score,
+    recall_score,
+)
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.abspath(os.path.join(current_dir, ".."))
 sys.path.append(parent_dir)
 
-from hcatgnet.utils.plot_utils import (create_bar_plot, create_parity_plot,
-                                       create_strip_plot, create_violin_plot)
+from hcatgnet.utils.plot_utils import (
+    create_bar_plot,
+    create_parity_plot,
+    create_strip_plot,
+    create_violin_plot,
+)
 from hcatgnet.utils.utils_model import extract_metrics
 from options.base_options import BaseOptions
 
