@@ -161,7 +161,7 @@ cython_debug/
 
 .DS_Store
 
-**.ipynb
+figs.ipynb
 **/processed/
 results/
 TRIAL/
