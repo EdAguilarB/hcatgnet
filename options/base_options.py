@@ -191,6 +191,13 @@ class BaseOptions:
         )
 
         self.parser.add_argument(
+            "--add_Hs",
+            type=self.str2bool,
+            default=True,
+            help="Whether to add hydrogens to the molecules",
+        )
+
+        self.parser.add_argument(
             "--splits_col",
             type=str,
             default=["set"],
