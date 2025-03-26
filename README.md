@@ -13,7 +13,7 @@ HCat-GNet (Homogeneous Catalyst Graph Neural Network) is a cutting-edge, open-so
 ## Installation
 
 ### Prerequisites
-- Python 3.8+
+- Python 3.8 or 3.9
 - Pip (Python package installer)
 
 ### Setup Instructions
@@ -51,7 +51,7 @@ Correspongding author: g.figueredo@nottingham.ac.uk
 
 
 
-   
+
 
 
 
